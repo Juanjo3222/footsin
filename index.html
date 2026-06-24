@@ -149,11 +149,12 @@
         <div class="subtitle">Infraestructura de Datos: streamed.budsin.dev</div>
     </header>
 
-    <div class="main-container">
         <div id="video-player-zone" class="player-container">
-            <button class="close-player-btn" onclick="closeVideoPlayer()">Cerrar Reproductor</button>
-            <iframe id="live-iframe" src="" allowfullscreen></iframe>
-        </div>
+    <button class="close-player-btn" onclick="closeVideoPlayer()">Cerrar Reproductor</button>
+    <div id="iframe-shield" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; cursor: pointer; background: rgba(0,0,0,0);"></div>
+    
+    <iframe id="live-iframe" src="" allowfullscreen></iframe>
+    </div>
 
         <div id="agenda-master-container">
             <div class="loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando agenda deportiva y flujos de idiomas...</div>
