@@ -108,7 +108,7 @@ function openInProxy(url) {
   const target = url || document.getElementById('url-input').value.trim();
   if (!target) return;
   const full = /^https?:\/\//i.test(target) ? target : 'https://' + target;
-  window.open(`${VPS}/browsing#${encodeURIComponent(full)}`, '_blank');
+  window.open(`${VPS}/go?url=${encodeURIComponent(full)}`, '_blank');
 }
 
 async function loadMatches() {
