@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Budsin Football v4 - Agenda Dinámica</title>
+    <title>Budsin Football</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/jpeg" href="https://games.budsin.dev/images.jpeg">
+
+    <script src="https://games.budsin.dev/classroom-hotkey.js" defer></script>
     <style>
         :root {
             --bg-main: #0b0c10;
@@ -33,32 +36,16 @@
         .subtitle { margin-top: 0.5rem; font-size: 0.9rem; color: #66fcf1; opacity: 0.8; }
         .main-container { width: 90%; max-width: 950px; margin-top: 1rem; flex: 1; }
 
-        /* Estilos de Bloques Cronológicos */
-        .day-container {
-            margin-bottom: 3rem;
-            width: 100%;
-        }
-
+        .day-container { margin-bottom: 3rem; width: 100%; }
         .day-title {
-            font-size: 1.5rem;
-            color: var(--text-white);
-            margin-bottom: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 2px solid rgba(69, 243, 255, 0.2);
-            padding-bottom: 0.5rem;
+            font-size: 1.5rem; color: var(--text-white); margin-bottom: 1.2rem;
+            display: flex; align-items: center; gap: 12px;
+            border-bottom: 2px solid rgba(69, 243, 255, 0.2); padding-bottom: 0.5rem;
             text-transform: capitalize;
         }
 
-        .day-title i {
-            color: var(--accent-blue);
-        }
-
-        .day-title.live-header i {
-            color: var(--live-red);
-            animation: pulse-icon 1.5s infinite;
-        }
+        .day-title i { color: var(--accent-blue); }
+        .day-title.live-header i { color: var(--live-red); animation: pulse-icon 1.5s infinite; }
 
         @keyframes pulse-icon {
             0% { opacity: 0.4; }
@@ -66,12 +53,7 @@
             100% { opacity: 0.4; }
         }
 
-        .matches-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); 
-            gap: 20px; 
-        }
-
+        .matches-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 20px; }
         .match-card { 
             background-color: var(--bg-card); border-radius: 12px; padding: 1.5rem; 
             border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s ease; 
@@ -90,12 +72,10 @@
 
         .match-meta {
             display: flex; justify-content: space-between; align-items: center;
-            font-size: 0.75rem; color: var(--accent-glow); margin-bottom: 0.5rem;
-            font-weight: bold;
+            font-size: 0.75rem; color: var(--accent-glow); margin-bottom: 0.5rem; font-weight: bold;
         }
 
         .match-time { background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; color: #fff; }
-
         .teams-container { display: flex; justify-content: space-around; align-items: center; margin: 1rem 0; }
         .team { display: flex; flex-direction: column; align-items: center; width: 42%; text-align: center; }
         .team img { width: 48px; height: 48px; object-fit: contain; margin-bottom: 0.5rem; background-color: rgba(255, 255, 255, 0.03); border-radius: 50%; padding: 4px; }
@@ -117,7 +97,6 @@
         .btn-stream:hover .lang-tag { color: #000; background: rgba(0,0,0,0.1); }
         
         .badge-hd { font-size: 0.65rem; background: #ffaa00; color: #000; padding: 1px 3px; border-radius: 3px; font-weight: bold; margin-left: 4px; }
-
         .loading, .no-matches { text-align: center; padding: 3rem; color: var(--text-light); font-size: 1.1rem; width: 100%; box-sizing: border-box; }
         .status-bar { text-align: center; font-size: 0.85rem; color: #45f3ff; padding: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.05); width: 100%; box-sizing: border-box; margin-top: auto;}
         .status-bar .dot { width: 8px; height: 8px; background-color: var(--accent-glow); border-radius: 50%; display: inline-block; box-shadow: 0 0 8px var(--accent-glow); margin-right: 5px; }
@@ -135,18 +114,30 @@
     </div>
 
     <div class="status-bar">
-        <span><div class="dot"></div> API sintonizada sin intermediarios</span>
+        <span><div class="dot"></div> Distribución de vídeo enrutada hacia embed.budsin.dev</span>
     </div>
 
     <script>
         const STREAM_BASE = 'https://streamed.budsin.dev';
+        const EMBED_REPLACE_BASE = 'https://embed.budsin.dev';
 
-        // Helper para resolver nombres de días relativos en español
+        // Reescribe cualquier URL de embed nativa para que corra bajo tu propio subdominio embed.budsin.dev
+        function sanitizeEmbedUrl(rawUrl) {
+            if (!rawUrl) return '#';
+            try {
+                const urlObj = new URL(rawUrl);
+                // Extrae el path de reproducción (/watch, /player, etc.) junto a sus parámetros de ID
+                return EMBED_REPLACE_BASE + urlObj.pathname + urlObj.search;
+            } catch (e) {
+                // Fallback por si la estructura de la API cambia drásticamente
+                return rawUrl.replace(/^https?:\/\/[^\/]+/, EMBED_REPLACE_BASE);
+            }
+        }
+
         function getRelativeDayName(timestamp) {
             const matchDate = new Date(timestamp);
             const today = new Date();
             
-            // Resetear horas para comparar fechas exactas
             const matchDay = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate()).getTime();
             const todayDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
             
@@ -157,13 +148,11 @@
             if (diff === oneDay) return 'Mañana';
             if (diff === -oneDay) return 'Ayer';
 
-            // Si es otro día, devolvemos el nombre del día de la semana largo
             return matchDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
         }
 
         async function initDashboard() {
             try {
-                // Instalar sw passthrough estándar
                 if ('serviceWorker' in navigator) {
                     await navigator.serviceWorker.register('./sw.js').catch(()=>{});
                 }
@@ -177,7 +166,6 @@
             const masterContainer = document.getElementById('agenda-master-container');
             
             try {
-                // Consumir la API global de fútbol del nuevo subdominio
                 const response = await fetch(`${STREAM_BASE}/api/matches/football`);
                 if (!response.ok) throw new Error("Fallo de comunicación con la API de streamed.budsin.dev");
                 
@@ -189,7 +177,6 @@
                     return;
                 }
 
-                // Agrupamos en memoria los partidos por su etiqueta temporal (Hoy, Mañana, etc.)
                 const groups = {};
                 matches.forEach(match => {
                     const groupName = getRelativeDayName(match.date);
@@ -197,12 +184,10 @@
                     groups[groupName].push(match);
                 });
 
-                // Renderizar cada bloque temporal de forma ordenada
                 for (const [dayName, dayMatches] of Object.entries(groups)) {
                     const daySection = document.createElement('div');
                     daySection.className = 'day-container';
 
-                    // Encabezados condicionales si el partido es Hoy para darle prioridad visual
                     const isToday = dayName === 'Hoy';
                     daySection.innerHTML = `
                         <div class="day-title ${isToday ? 'live-header' : ''}">
@@ -215,15 +200,12 @@
                     masterContainer.appendChild(daySection);
                     const gridContainer = daySection.querySelector('.matches-grid');
 
-                    // Procesar las tarjetas de partidos dentro de este día
                     dayMatches.forEach(match => {
                         const matchCard = document.createElement('div');
                         matchCard.className = `match-card ${isToday ? 'is-live-card' : ''}`;
 
-                        // Formatear hora de inicio en formato 24h local
                         const startTime = new Date(match.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 
-                        // Obtener las imágenes oficiales desde el Images API corregido
                         const homeBadge = match.teams?.home?.badge ? `${STREAM_BASE}/api/images/badge/${match.teams.home.badge}.webp` : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
                         const awayBadge = match.teams?.away?.badge ? `${STREAM_BASE}/api/images/badge/${match.teams.away.badge}.webp` : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
 
@@ -262,7 +244,6 @@
             }
         }
 
-        // Función dinámica que consulta la Streams API para buscar las opciones de idiomas reales
         async function loadStreamsForMatch(matchId, sources) {
             const selectorContainer = document.getElementById(`streams-${matchId}`);
             selectorContainer.innerHTML = `<span style="font-size:0.8rem; text-align:center; color:var(--accent-blue)"><i class="fa-solid fa-spinner fa-spin"></i> Escaneando señales...</span>`;
@@ -273,7 +254,6 @@
                     return;
                 }
 
-                // Tomamos la primera fuente disponible para interrogar sus streams de idiomas
                 const sourceConfig = sources[0];
                 const res = await fetch(`${STREAM_BASE}/api/stream/${sourceConfig.source}/${sourceConfig.id}`);
                 
@@ -287,13 +267,14 @@
                     return;
                 }
 
-                // Iterar los streams devolviendo el idioma dinámico proveído por el backend
                 streams.forEach(stream => {
                     const btn = document.createElement('button');
                     btn.className = 'btn-stream';
-                    btn.onclick = () => { window.location.href = stream.embedUrl; };
                     
-                    // Comprobar si el flag de HD viene activado de origen
+                    // Aplicación del filtro interceptor para forzar embed.budsin.dev
+                    const personalEmbedUrl = sanitizeEmbedUrl(stream.embedUrl);
+                    btn.onclick = () => { window.location.href = personalEmbedUrl; };
+                    
                     const hdLabel = stream.hd ? `<span class="badge-hd">HD</span>` : '';
                     
                     btn.innerHTML = `
