@@ -114,14 +114,14 @@
     </div>
 
     <div class="status-bar">
-        <span><div class="dot"></div> Distribución de vídeo enrutada hacia embed.budsin.dev</span>
+        <span><div class="dot"></div> Distribución de vídeo enrutada hacia embed.st</span>
     </div>
 
     <script>
         const STREAM_BASE = 'https://streamed.budsin.dev';
-        const EMBED_REPLACE_BASE = 'https://embed.budsin.dev';
+        const EMBED_REPLACE_BASE = 'https://embed.st';
 
-        // Reescribe cualquier URL de embed nativa para que corra bajo tu propio subdominio embed.budsin.dev
+        // Reescribe cualquier URL de embed nativa para que corra bajo tu propio subdominio embed.st
         function sanitizeEmbedUrl(rawUrl) {
             if (!rawUrl) return '#';
             try {
@@ -271,7 +271,7 @@
                     const btn = document.createElement('button');
                     btn.className = 'btn-stream';
                     
-                    // Aplicación del filtro interceptor para forzar embed.budsin.dev
+                    // Aplicación del filtro interceptor para forzar embed.st
                     const personalEmbedUrl = sanitizeEmbedUrl(stream.embedUrl);
                     btn.onclick = () => { window.location.href = personalEmbedUrl; };
                     
