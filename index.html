@@ -65,22 +65,10 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.8rem;
-            z-index: 12; /* Por encima de cualquier capa defensiva */
+            z-index: 20;
         }
         .close-player-btn:hover {
             background: var(--live-red);
-        }
-
-        /* Escudo Invisible contra Secuestro de Clics */
-        .iframe-interceptor-shield {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            background: transparent;
-            cursor: pointer;
         }
 
         .day-container { margin-bottom: 3rem; width: 100%; }
@@ -164,10 +152,7 @@
     <div class="main-container">
         <div id="video-player-zone" class="player-container">
             <button class="close-player-btn" onclick="closeVideoPlayer()">Cerrar Reproductor</button>
-            
-            <div id="iframe-shield" class="iframe-interceptor-shield"></div>
-            
-            <iframe id="live-iframe" src="" allowfullscreen></iframe>
+            <iframe id="live-iframe" src="" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
         </div>
 
         <div id="agenda-master-container">
@@ -194,12 +179,12 @@
         }
 
         // ==========================================
-        // PROTECCIÓN AVANZADA CONTRA VENTANAS EMERGENTES (JS GLOBAL)
+        // ESCUDO DE INTERCEPTACIÓN Y CONTROL DE FOCO
         // ==========================================
         (function() {
             const originalOpen = window.open;
             window.open = function(url, name, specs) {
-                console.warn("Budsin Shield: Ventana bloqueada de raíz ->", url);
+                console.warn("Budsin Shield: Bloqueado script de ventana externa ->", url);
                 return null;
             };
 
@@ -208,27 +193,31 @@
                 setTimeout(() => { window.open = originalOpen; }, 800);
             }, true);
 
+            // Evitar pérdida de foco prolongada (Tab-Under / Redirecciones fantasmas)
             setInterval(function() {
                 if (document.activeElement === document.getElementById('live-iframe')) {
                     window.focus();
                 }
             }, 400);
+
+            // Si el iframe logra abrir una pestaña externa gracias a allow-popups,
+            // forzamos al navegador a regresar la atención a nuestra web de inmediato.
+            window.addEventListener('blur', function() {
+                setTimeout(() => {
+                    window.focus();
+                }, 100);
+            });
         })();
 
         // ==========================================
-        // CONTROLADORES INTERMITENTES DEL ESCUDO
+        // CONTROLADORES DEL REPRODUCTOR
         // ==========================================
         function openVideoStream(url) {
             const playerZone = document.getElementById('video-player-zone');
             const iframe = document.getElementById('live-iframe');
-            const shield = document.getElementById('iframe-shield');
             
             iframe.src = url;
             playerZone.style.display = 'block';
-            
-            if (shield) {
-                shield.style.display = 'block';
-            }
             
             playerZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -239,25 +228,6 @@
             iframe.src = '';
             playerZone.style.display = 'none';
         }
-
-        // Sistema defensivo cíclico
-        document.addEventListener('DOMContentLoaded', () => {
-            const shield = document.getElementById('iframe-shield');
-            if (shield) {
-                shield.addEventListener('click', () => {
-                    console.log("Budsin Shield: Desactivando escudo temporalmente para simular interacción nativa.");
-                    
-                    // Desactivamos temporalmente el CSS que captura los eventos del puntero
-                    shield.style.pointerEvents = 'none';
-                    
-                    // Concedemos una ventana de sólo 350 milisegundos para interactuar con los botones reales
-                    setTimeout(() => {
-                        shield.style.pointerEvents = 'auto';
-                        console.log("Budsin Shield: Escudo reactivado.");
-                    }, 350);
-                });
-            }
-        });
 
         function getRelativeDayName(timestamp) {
             const matchDate = new Date(timestamp);
