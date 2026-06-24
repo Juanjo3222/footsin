@@ -152,7 +152,7 @@
     <div class="main-container">
         <div id="video-player-zone" class="player-container">
             <button class="close-player-btn" onclick="closeVideoPlayer()">Cerrar Reproductor</button>
-            <iframe id="live-iframe" src="" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+            <iframe id="live-iframe" src="" allowfullscreen></iframe>
         </div>
 
         <div id="agenda-master-container">
@@ -193,15 +193,14 @@
                 setTimeout(() => { window.open = originalOpen; }, 800);
             }, true);
 
-            // Evitar pérdida de foco prolongada (Tab-Under / Redirecciones fantasmas)
+            // Monitoreo continuo para mitigar secuestro de foco (Tab-Under)
             setInterval(function() {
                 if (document.activeElement === document.getElementById('live-iframe')) {
                     window.focus();
                 }
             }, 400);
 
-            // Si el iframe logra abrir una pestaña externa gracias a allow-popups,
-            // forzamos al navegador a regresar la atención a nuestra web de inmediato.
+            // Intento de regresar al usuario si una pestaña publicitaria toma prioridad
             window.addEventListener('blur', function() {
                 setTimeout(() => {
                     window.focus();
