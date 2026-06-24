@@ -152,7 +152,7 @@
     <div class="main-container">
         <div id="video-player-zone" class="player-container">
             <button class="close-player-btn" onclick="closeVideoPlayer()">Cerrar Reproductor</button>
-            <iframe id="live-iframe" src="" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+            <iframe id="live-iframe" src="" allowfullscreen></iframe>
         </div>
 
         <div id="agenda-master-container">
@@ -179,6 +179,35 @@
         }
 
         // Ejecuta la carga del stream dentro de la zona del iframe e interactúa con el scroll
+// ==========================================
+        // ESCUDO ANTI-POPUPS (Se ejecuta una sola vez globalmente)
+        // ==========================================
+        (function() {
+            // 1. Sobrescribir window.open globalmente por si el script del iframe intenta saltar al padre
+            const originalOpen = window.open;
+            window.open = function(url, name, specs) {
+                console.warn("Budsin Shield: Intento de pestaña bloqueado ->", url);
+                return null; // Retornar null rompe la ejecución del script publicitario
+            };
+
+            // 2. Mitigar el secuestro de clics (Click-jacking invisible)
+            window.addEventListener('click', function(e) {
+                window.open = function() { return null; };
+                setTimeout(() => { window.open = originalOpen; }, 800);
+            }, true);
+
+            // 3. Monitorear la pérdida de foco (Tab-Under / Redirección en segundo plano)
+            setInterval(function() {
+                if (document.activeElement === document.getElementById('live-iframe')) {
+                    // El iframe intentó tomar el control total, le quitamos el foco de inmediato
+                    window.focus();
+                }
+            }, 400);
+        })();
+
+        // ==========================================
+        // CONTROLADORES DEL REPRODUCTOR Y AGENDA
+        // ==========================================
         function openVideoStream(url) {
             const playerZone = document.getElementById('video-player-zone');
             const iframe = document.getElementById('live-iframe');
