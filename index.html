@@ -3,137 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Budsin Football</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Cartelera — Budsin Football</title>
     <link rel="icon" type="image/jpeg" href="https://games.budsin.dev/images.jpeg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <script src="https://games.budsin.dev/classroom-hotkey.js" defer></script>
     <style>
         :root {
-            --bg-main: #0b0c10;
-            --bg-card: #1f2833;
-            --accent-glow: #00ffcc;
-            --accent-blue: #45f3ff;
-            --text-light: #c5c6c7;
-            --text-white: #ffffff;
-            --live-red: #ff3b3b;
+            --bg-main: #0e0d0b;
+            --bg-card: #17150f;
+            --bg-card-raised: #1d1b14;
+            --line: #2d2a22;
+            --paper: #ede9e0;
+            --paper-dim: #948e7c;
+            --pitch: #4a6b4a;
+            --pitch-dim: #2e3f2e;
+            --card-yellow: #e8c547;
+            --card-red: #b23a2e;
+            --font-display: 'Barlow Condensed', sans-serif;
+            --font-serif: 'Source Serif 4', serif;
+            --font-mono: 'IBM Plex Mono', monospace;
         }
+
+        * { box-sizing: border-box; }
 
         body {
             margin: 0; padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-main); color: var(--text-light);
+            font-family: var(--font-serif);
+            background-color: var(--bg-main);
+            background-image:
+                repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 36px);
+            color: var(--paper);
             display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
 
         header {
-            width: 100%; padding: 2rem 0; text-align: center;
-            background: linear-gradient(180deg, rgba(69,243,255,0.1) 0%, rgba(0,0,0,0) 100%);
+            width: 100%;
+            padding: 2.8rem 0 1.6rem;
+            text-align: center;
+            border-bottom: 1px solid var(--line);
         }
 
-        h1 { margin: 0; font-size: 2.5rem; color: var(--text-white); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px rgba(69, 243, 255, 0.5); }
-        h1 span { color: var(--accent-glow); }
-        .subtitle { margin-top: 0.5rem; font-size: 0.9rem; color: #66fcf1; opacity: 0.8; }
-        .main-container { width: 90%; max-width: 950px; margin-top: 1rem; flex: 1; }
+        .masthead-row {
+            display: flex; align-items: baseline; justify-content: center; gap: 0.9rem;
+        }
 
-        /* Contenedor del reproductor iframe */
+        h1 {
+            margin: 0;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 3.2rem;
+            color: var(--paper);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+        h1 .accent { color: var(--card-yellow); }
+
+        .edition-tag {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--pitch);
+            border: 1px solid var(--pitch-dim);
+            padding: 3px 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            align-self: center;
+            white-space: nowrap;
+        }
+
+        .subtitle {
+            margin-top: 0.6rem;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--paper-dim);
+            letter-spacing: 0.5px;
+        }
+
+        .main-container { width: 92%; max-width: 980px; margin-top: 0; }
+
+        /* Reproductor */
         .player-container {
             width: 100%;
             display: none;
-            margin-bottom: 2rem;
+            margin: 2.4rem 0 2.8rem;
             background: #000;
-            border-radius: 12px;
+            border-radius: 2px;
             overflow: hidden;
-            border: 2px solid var(--accent-blue);
-            box-shadow: 0 0 20px rgba(69, 243, 255, 0.2);
+            border: 1px solid var(--line);
             position: relative;
             aspect-ratio: 16 / 9;
         }
-        .player-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
+        .player-container iframe { width: 100%; height: 100%; border: none; }
         .close-player-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            border: 1px solid var(--live-red);
-            padding: 5px 10px;
-            border-radius: 4px;
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(14,13,11,0.85);
+            color: var(--paper);
+            border: 1px solid var(--card-red);
+            padding: 5px 11px;
+            border-radius: 2px;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             z-index: 20;
         }
-        .close-player-btn:hover {
-            background: var(--live-red);
-        }
+        .close-player-btn:hover { background: var(--card-red); }
 
-        .day-container { margin-bottom: 3rem; width: 100%; }
+        /* Secciones de día */
+        .day-container { margin-top: 2.6rem; width: 100%; }
+        .day-container:first-of-type { margin-top: 2.2rem; }
+
         .day-title {
-            font-size: 1.5rem; color: var(--text-white); margin-bottom: 1.2rem;
-            display: flex; align-items: center; gap: 12px;
-            border-bottom: 2px solid rgba(69, 243, 255, 0.2); padding-bottom: 0.5rem;
-            text-transform: capitalize;
+            display: flex; align-items: baseline; gap: 0.7rem;
+            margin-bottom: 1.1rem;
+        }
+        .day-title .day-name {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--paper);
+        }
+        .day-title .day-rule { flex: 1; height: 1px; background: var(--line); }
+        .day-title .day-count {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--paper-dim);
+        }
+        .day-title.live-header .day-name::before {
+            content: '';
+            display: inline-block;
+            width: 8px; height: 8px;
+            background: var(--card-red);
+            border-radius: 50%;
+            margin-right: 9px;
+            vertical-align: middle;
         }
 
-        .day-title.live-header i { color: var(--live-red); animation: pulse-icon 1.5s infinite; }
-
-        @keyframes pulse-icon {
-            0% { opacity: 0.4; }
-            50% { opacity: 1; }
-            100% { opacity: 0.4; }
+        /* Fila destacada (TOP del día) */
+        .featured-row {
+            display: grid;
+            grid-template-columns: 64px 1fr auto;
+            align-items: center;
+            gap: 1.2rem;
+            background: var(--bg-card-raised);
+            border: 1px solid var(--line);
+            border-left: 3px solid var(--card-yellow);
+            padding: 1.1rem 1.3rem;
+            margin-bottom: 0.6rem;
         }
 
-        .matches-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 20px; }
-        .match-card { 
-            background-color: var(--bg-card); border-radius: 12px; padding: 1.5rem; 
-            border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s ease; 
-            display: flex; flex-direction: column; justify-content: space-between; 
-            position: relative; overflow: hidden; 
+        /* Lista de partidos normales */
+        .matches-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+        .match-row {
+            display: grid;
+            grid-template-columns: 64px 1fr auto;
+            align-items: center;
+            gap: 1.2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--line);
+            border-left: 3px solid var(--pitch-dim);
+            padding: 0.85rem 1.3rem;
+            transition: border-color 0.15s ease, background-color 0.15s ease;
         }
-        
-        .match-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(69, 243, 255, 0.1);
-            border-color: rgba(69, 243, 255, 0.3);
+        .match-row:hover, .featured-row:hover {
+            background: var(--bg-card-raised);
+            border-left-color: var(--pitch);
+        }
+        .match-row.is-live, .featured-row.is-live { border-left-color: var(--card-red); }
+
+        .match-time-block {
+            font-family: var(--font-mono);
+            text-align: center;
+            color: var(--paper-dim);
+            line-height: 1.1;
+        }
+        .match-time-block .time { font-size: 1.0rem; color: var(--paper); display: block; }
+        .match-time-block .live-tag {
+            font-size: 0.62rem;
+            color: var(--card-red);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .match-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background-color: var(--accent-blue); }
-        .match-card.is-live-card::before { background-color: var(--live-red); }
+        .match-info { min-width: 0; }
+        .match-title {
+            font-family: var(--font-serif);
+            font-weight: 600;
+            font-size: 1.0rem;
+            color: var(--paper);
+            margin: 0 0 0.3rem;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .featured-row .match-title { font-size: 1.2rem; }
 
-        .match-meta {
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 0.75rem; color: var(--accent-glow); margin-bottom: 0.5rem; font-weight: bold;
+        .teams-line {
+            display: flex; align-items: center; gap: 0.55rem;
+            font-family: var(--font-mono);
+            font-size: 0.74rem;
+            color: var(--paper-dim);
+        }
+        .teams-line img {
+            width: 20px; height: 20px; object-fit: contain;
+            filter: grayscale(1) brightness(1.6);
+            opacity: 0.75;
+            transition: filter 0.15s ease, opacity 0.15s ease;
+        }
+        .match-row:hover .teams-line img, .featured-row:hover .teams-line img {
+            filter: none; opacity: 1;
+        }
+        .teams-line .vs-sep { color: var(--card-yellow); font-size: 0.65rem; }
+
+        .top-flag {
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            color: var(--bg-main);
+            background: var(--card-yellow);
+            padding: 1px 6px;
+            margin-left: 0.5rem;
+            letter-spacing: 0.5px;
+            vertical-align: middle;
         }
 
-        .match-time { background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; color: #fff; }
-        .teams-container { display: flex; justify-content: space-around; align-items: center; margin: 1rem 0; }
-        .team { display: flex; flex-direction: column; align-items: center; width: 42%; text-align: center; }
-        .team img { width: 48px; height: 48px; object-fit: contain; margin-bottom: 0.5rem; background-color: rgba(255, 255, 255, 0.03); border-radius: 50%; padding: 4px; }
-        .team-name { font-size: 0.85rem; font-weight: 600; color: var(--text-white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-        .vs { font-size: 0.9rem; font-weight: bold; color: var(--accent-glow); }
-        .match-title { font-size: 0.95rem; font-weight: bold; text-align: center; margin-bottom: 0.2rem; color: var(--text-white); }
-        
-        .stream-selectors { display: flex; flex-direction: column; gap: 8px; margin-top: 1rem; }
+        /* Selector de idiomas / streams */
+        .stream-selectors {
+            display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: flex-end; max-width: 280px;
+        }
+
+        .btn-open-streams {
+            background: transparent;
+            color: var(--pitch);
+            border: 1px solid var(--pitch-dim);
+            padding: 0.5rem 0.85rem;
+            border-radius: 2px;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+        .btn-open-streams:hover { background: var(--pitch); color: var(--bg-main); border-color: var(--pitch); }
 
         .btn-stream {
-            background-color: rgba(69, 243, 255, 0.07); color: var(--text-white);
-            border: 1px solid rgba(69, 243, 255, 0.4); padding: 0.6rem; border-radius: 6px;
-            font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
-            text-align: left; display: flex; justify-content: space-between; align-items: center;
+            background: transparent;
+            color: var(--paper);
+            border: 1px solid var(--line);
+            padding: 0.4rem 0.65rem;
+            border-radius: 2px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-stream:hover { border-color: var(--card-yellow); color: var(--card-yellow); }
+        .btn-stream .lang-tag { color: var(--paper-dim); }
+        .btn-stream:hover .lang-tag { color: var(--card-yellow); }
+        .btn-stream .hd-mark { color: var(--card-red); font-size: 0.62rem; }
+
+        .stream-status {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--paper-dim);
         }
 
-        .btn-stream:hover { background-color: var(--accent-blue); color: var(--bg-main); font-weight: bold; }
-        .btn-stream .lang-tag { background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; color: var(--accent-glow); }
-        .btn-stream:hover .lang-tag { color: #000; background: rgba(0,0,0,0.1); }
-        
-        .badge-hd { font-size: 0.65rem; background: #ffaa00; color: #000; padding: 1px 3px; border-radius: 3px; font-weight: bold; margin-left: 4px; }
-        .loading, .no-matches { text-align: center; padding: 3rem; color: var(--text-light); font-size: 1.1rem; width: 100%; box-sizing: border-box; }
-        .status-bar { text-align: center; font-size: 0.85rem; color: #45f3ff; padding: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.05); width: 100%; box-sizing: border-box; margin-top: auto;}
-        .status-bar .dot { width: 8px; height: 8px; background-color: var(--accent-glow); border-radius: 50%; display: inline-block; box-shadow: 0 0 8px var(--accent-glow); margin-right: 5px; }
+        .loading, .no-matches {
+            text-align: center; padding: 4rem 1rem; color: var(--paper-dim);
+            font-family: var(--font-mono); font-size: 0.85rem; width: 100%; box-sizing: border-box;
+        }
+
+        .status-bar {
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--paper-dim);
+            padding: 1.4rem;
+            border-top: 1px solid var(--line);
+            width: 100%; box-sizing: border-box; margin-top: 3.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-bar .dot {
+            width: 6px; height: 6px; background-color: var(--pitch); border-radius: 50%;
+            display: inline-block; margin-right: 6px;
+        }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 2.2rem; }
+            .masthead-row { flex-direction: column; gap: 0.4rem; }
+            .match-row, .featured-row {
+                grid-template-columns: 1fr; gap: 0.6rem; text-align: left;
+            }
+            .match-time-block { text-align: left; }
+            .stream-selectors { justify-content: flex-start; max-width: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -145,23 +321,26 @@
     </script>
 
     <header>
-        <h1>Budsin <span>Stream Grid</span></h1>
-        <div class="subtitle">Infraestructura de Datos: streamed.budsin.dev</div>
+        <div class="masthead-row">
+            <h1>Budsin<span class="accent">FC</span></h1>
+            <span class="edition-tag">Edición en vivo</span>
+        </div>
+        <div class="subtitle">streamed.budsin.dev — cartelera de transmisiones</div>
     </header>
 
     <div class="main-container">
         <div id="video-player-zone" class="player-container">
-            <button class="close-player-btn" onclick="closeVideoPlayer()">Cerrar Reproductor</button>
+            <button class="close-player-btn" onclick="closeVideoPlayer()">Cerrar</button>
             <iframe id="live-iframe" src="" allowfullscreen></iframe>
         </div>
 
         <div id="agenda-master-container">
-            <div class="loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Sincronizando agenda deportiva y flujos de idiomas...</div>
+            <div class="loading">Sincronizando agenda y señales disponibles…</div>
         </div>
     </div>
 
     <div class="status-bar">
-        <span><div class="dot"></div> Distribución de vídeo enrutada hacia embed.st</span>
+        <span><span class="dot"></span>Vídeo distribuido vía embed.st</span>
     </div>
 
     <script>
@@ -193,18 +372,14 @@
                 setTimeout(() => { window.open = originalOpen; }, 800);
             }, true);
 
-            // Monitoreo continuo para mitigar secuestro de foco (Tab-Under)
             setInterval(function() {
                 if (document.activeElement === document.getElementById('live-iframe')) {
                     window.focus();
                 }
             }, 400);
 
-            // Intento de regresar al usuario si una pestaña publicitaria toma prioridad
             window.addEventListener('blur', function() {
-                setTimeout(() => {
-                    window.focus();
-                }, 100);
+                setTimeout(() => { window.focus(); }, 100);
             });
         })();
 
@@ -214,10 +389,10 @@
         function openVideoStream(url) {
             const playerZone = document.getElementById('video-player-zone');
             const iframe = document.getElementById('live-iframe');
-            
+
             iframe.src = url;
             playerZone.style.display = 'block';
-            
+
             playerZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
@@ -231,10 +406,10 @@
         function getRelativeDayName(timestamp) {
             const matchDate = new Date(timestamp);
             const today = new Date();
-            
+
             const matchDay = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate()).getTime();
             const todayDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
-            
+
             const oneDay = 24 * 60 * 60 * 1000;
             const diff = matchDay - todayDay;
 
@@ -256,13 +431,51 @@
             }
         }
 
+        function buildMatchRowHTML(match, isToday, isFeatured) {
+            const startTime = new Date(match.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+            const homeBadge = match.teams?.home?.badge ? `${STREAM_BASE}/api/images/badge/${match.teams.home.badge}.webp` : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
+            const awayBadge = match.teams?.away?.badge ? `${STREAM_BASE}/api/images/badge/${match.teams.away.badge}.webp` : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
+
+            const homeName = match.teams?.home?.name || 'Local';
+            const awayName = match.teams?.away?.name || 'Visitante';
+
+            const rowClass = isFeatured
+                ? `featured-row ${isToday ? 'is-live' : ''}`
+                : `match-row ${isToday ? 'is-live' : ''}`;
+
+            return `
+                <div class="${rowClass}">
+                    <div class="match-time-block">
+                        <span class="time">${startTime}</span>
+                        ${isToday ? '<span class="live-tag">En vivo</span>' : ''}
+                    </div>
+                    <div class="match-info">
+                        <p class="match-title">${match.title || (homeName + ' vs ' + awayName)}${match.popular ? '<span class="top-flag">TOP</span>' : ''}</p>
+                        <div class="teams-line">
+                            <img src="${homeBadge}" alt="${homeName}" loading="lazy" onerror="this.src='https://img.icons8.com/ios-filled/50/ffffff/football2.png'">
+                            <span>${homeName}</span>
+                            <span class="vs-sep">vs</span>
+                            <img src="${awayBadge}" alt="${awayName}" loading="lazy" onerror="this.src='https://img.icons8.com/ios-filled/50/ffffff/football2.png'">
+                            <span>${awayName}</span>
+                        </div>
+                    </div>
+                    <div class="stream-selectors" id="streams-${match.id}">
+                        <button class="btn-open-streams" onclick="loadStreamsForMatch('${match.id}', ${JSON.stringify(match.sources).replace(/"/g, '&quot;')})">
+                            Ver señales
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
         async function renderTimeline() {
             const masterContainer = document.getElementById('agenda-master-container');
-            
+
             try {
                 const response = await fetch(`${STREAM_BASE}/api/matches/football`);
                 if (!response.ok) throw new Error("Fallo de comunicación con la API de streamed.budsin.dev");
-                
+
                 const matches = await response.json();
                 masterContainer.innerHTML = '';
 
@@ -283,102 +496,76 @@
                     daySection.className = 'day-container';
 
                     const isToday = dayName === 'Hoy';
+
+                    // Separar el partido destacado (si hay uno marcado popular) del resto
+                    const sorted = [...dayMatches];
+                    const featuredIndex = sorted.findIndex(m => m.popular);
+                    let featured = null;
+                    if (featuredIndex !== -1) {
+                        featured = sorted.splice(featuredIndex, 1)[0];
+                    }
+
                     daySection.innerHTML = `
                         <div class="day-title ${isToday ? 'live-header' : ''}">
-                            <i class="${isToday ? 'fa-solid fa-satellite-dish' : 'fa-solid fa-calendar-day'}"></i>
-                            <span>${dayName}</span>
+                            <span class="day-name">${dayName}</span>
+                            <span class="day-rule"></span>
+                            <span class="day-count">${dayMatches.length} ${dayMatches.length === 1 ? 'partido' : 'partidos'}</span>
                         </div>
-                        <div class="matches-grid" id="grid-${btoa(encodeURIComponent(dayName)).replace(/=/g, '')}"></div>
+                        ${featured ? buildMatchRowHTML(featured, isToday, true) : ''}
+                        <div class="matches-list"></div>
                     `;
 
                     masterContainer.appendChild(daySection);
-                    const gridContainer = daySection.querySelector('.matches-grid');
-
-                    dayMatches.forEach(match => {
-                        const matchCard = document.createElement('div');
-                        matchCard.className = `match-card ${isToday ? 'is-live-card' : ''}`;
-
-                        const startTime = new Date(match.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-
-                        const homeBadge = match.teams?.home?.badge ? `${STREAM_BASE}/api/images/badge/${match.teams.home.badge}.webp` : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
-                        const awayBadge = match.teams?.away?.badge ? `${STREAM_BASE}/api/images/badge/${match.teams.away.badge}.webp` : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
-
-                        const homeName = match.teams?.home?.name || 'Local';
-                        const awayName = match.teams?.away?.name || 'Visitante';
-
-                        matchCard.innerHTML = `
-                            <div class="match-meta">
-                                <span class="match-time"><i class="fa-regular fa-clock"></i> ${startTime}</span>
-                                ${match.popular ? '<span><i class="fa-solid fa-star" style="color:#ffaa00"></i> TOP</span>' : ''}
-                            </div>
-                            <div class="match-title">${match.title || (homeName + ' vs ' + awayName)}</div>
-                            <div class="teams-container">
-                                <div class="team">
-                                    <img src="${homeBadge}" alt="${homeName}" loading="lazy" onerror="this.src='https://img.icons8.com/ios-filled/50/ffffff/football2.png'">
-                                    <div class="team-name">${homeName}</div>
-                                </div>
-                                <div class="vs">VS</div>
-                                <div class="team">
-                                    <img src="${awayBadge}" alt="${awayName}" loading="lazy" onerror="this.src='https://img.icons8.com/ios-filled/50/ffffff/football2.png'">
-                                    <div class="team-name">${awayName}</div>
-                                </div>
-                            </div>
-                            <div class="stream-selectors" id="streams-${match.id}">
-                                <button class="btn-stream" style="text-align:center; justify-content:center; opacity:0.6;" onclick="loadStreamsForMatch('${match.id}', ${JSON.stringify(match.sources).replace(/"/g, '&quot;')})">
-                                    <i class="fa-solid fa-headset" style="margin-right:6px"></i> Ver Idiomas Disponibles
-                                </button>
-                            </div>
-                        `;
-                        gridContainer.appendChild(matchCard);
-                    });
+                    const listContainer = daySection.querySelector('.matches-list');
+                    listContainer.innerHTML = sorted.map(m => buildMatchRowHTML(m, isToday, false)).join('');
                 }
 
             } catch (err) {
-                masterContainer.innerHTML = `<div class="no-matches" style="color: var(--live-red);"><i class="fa-solid fa-triangle-exclamation"></i> Error al mapear la API: ${err.message}</div>`;
+                masterContainer.innerHTML = `<div class="no-matches" style="color: var(--card-red);">Error al mapear la API: ${err.message}</div>`;
             }
         }
 
         async function loadStreamsForMatch(matchId, sources) {
             const selectorContainer = document.getElementById(`streams-${matchId}`);
-            selectorContainer.innerHTML = `<span style="font-size:0.8rem; text-align:center; color:var(--accent-blue)"><i class="fa-solid fa-spinner fa-spin"></i> Escaneando señales...</span>`;
+            selectorContainer.innerHTML = `<span class="stream-status">Escaneando señales…</span>`;
 
             try {
                 if (!sources || sources.length === 0) {
-                    selectorContainer.innerHTML = `<span style="font-size:0.8rem; color:var(--live-red)">No hay fuentes para este evento.</span>`;
+                    selectorContainer.innerHTML = `<span class="stream-status" style="color: var(--card-red);">No hay fuentes para este evento.</span>`;
                     return;
                 }
 
                 const sourceConfig = sources[0];
                 const res = await fetch(`${STREAM_BASE}/api/stream/${sourceConfig.source}/${sourceConfig.id}`);
-                
+
                 if (!res.ok) throw new Error();
                 const streams = await res.json();
 
                 selectorContainer.innerHTML = '';
 
                 if (!streams || streams.length === 0) {
-                    selectorContainer.innerHTML = `<span style="font-size:0.8rem; color:var(--text-light)">Canales offline por el momento.</span>`;
+                    selectorContainer.innerHTML = `<span class="stream-status">Canales offline por el momento.</span>`;
                     return;
                 }
 
                 streams.forEach(stream => {
                     const btn = document.createElement('button');
                     btn.className = 'btn-stream';
-                    
+
                     const personalEmbedUrl = sanitizeEmbedUrl(stream.embedUrl);
                     btn.onclick = () => { openVideoStream(personalEmbedUrl); };
-                    
-                    const hdLabel = stream.hd ? `<span class="badge-hd">HD</span>` : '';
-                    
+
+                    const hdLabel = stream.hd ? `<span class="hd-mark">HD</span>` : '';
+
                     btn.innerHTML = `
-                        <span><i class="fa-solid fa-play" style="font-size:0.7rem; margin-right:6px; color:var(--accent-blue)"></i> Opción ${stream.streamNo} ${hdLabel}</span>
-                        <span class="lang-tag"><i class="fa-solid fa-globe"></i> ${stream.language || 'Alternativo'}</span>
+                        <span>Opción ${stream.streamNo}</span>${hdLabel}
+                        <span class="lang-tag">${stream.language || 'Alternativo'}</span>
                     `;
                     selectorContainer.appendChild(btn);
                 });
 
             } catch (e) {
-                selectorContainer.innerHTML = `<span style="font-size:0.8rem; color:var(--live-red)">Error al enlazar idiomas remotos.</span>`;
+                selectorContainer.innerHTML = `<span class="stream-status" style="color: var(--card-red);">Error al enlazar idiomas remotos.</span>`;
             }
         }
 
