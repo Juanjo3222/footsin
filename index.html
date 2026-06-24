@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Budsin Football v4 - API Enrutada Total</title>
+    <title>Budsin Football v4 - Scramjet Native</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -44,23 +44,9 @@
             text-shadow: 0 0 10px rgba(69, 243, 255, 0.5);
         }
 
-        h1 span {
-            color: var(--accent-glow);
-        }
-
-        .subtitle {
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-            color: #66fcf1;
-            opacity: 0.8;
-        }
-
-        .main-container {
-            width: 90%;
-            max-width: 950px;
-            margin-top: 1rem;
-            flex: 1;
-        }
+        h1 span { color: var(--accent-glow); }
+        .subtitle { margin-top: 0.5rem; font-size: 0.9rem; color: #66fcf1; opacity: 0.8; }
+        .main-container { width: 90%; max-width: 950px; margin-top: 1rem; flex: 1; }
 
         .search-section {
             background-color: var(--bg-card);
@@ -151,143 +137,47 @@
         }
 
         .match-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 4px; height: 100%;
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
             background-color: var(--accent-blue);
         }
 
-        .match-card:hover {
-            transform: translateY(-3px);
-            border-color: var(--accent-glow);
-            box-shadow: 0 5px 15px rgba(0, 255, 204, 0.1);
-        }
-
-        .teams-container {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            margin: 1rem 0;
-        }
-
-        .team {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 40%;
-            text-align: center;
-        }
-
-        .team img {
-            width: 45px;
-            height: 45px;
-            object-fit: contain;
-            margin-bottom: 0.5rem;
-            background-color: rgba(255, 255, 255, 0.03);
-            border-radius: 50%;
-            padding: 4px;
-        }
-
-        .team-name {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-white);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 100%;
-        }
-
-        .vs {
-            font-size: 0.9rem;
-            font-weight: bold;
-            color: var(--accent-glow);
-        }
-
-        .match-title {
-            font-size: 0.95rem;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 0.5rem;
-            color: var(--text-white);
-        }
-
-        .stream-selectors {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 1rem;
-        }
+        .teams-container { display: flex; justify-content: space-around; align-items: center; margin: 1rem 0; }
+        .team { display: flex; flex-direction: column; align-items: center; width: 40%; text-align: center; }
+        .team img { width: 45px; height: 45px; object-fit: contain; margin-bottom: 0.5rem; background-color: rgba(255, 255, 255, 0.03); border-radius: 50%; padding: 4px; }
+        .team-name { font-size: 0.85rem; font-weight: 600; color: var(--text-white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+        .vs { font-size: 0.9rem; font-weight: bold; color: var(--accent-glow); }
+        .match-title { font-size: 0.95rem; font-weight: bold; text-align: center; margin-bottom: 0.5rem; color: var(--text-white); }
+        .stream-selectors { display: flex; flex-direction: column; gap: 8px; margin-top: 1rem; }
 
         .btn-stream {
-            background-color: rgba(69, 243, 255, 0.1);
-            color: var(--accent-blue);
-            border: 1px solid var(--accent-blue);
-            padding: 0.5rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
+            background-color: rgba(69, 243, 255, 0.1); color: var(--accent-blue);
+            border: 1px solid var(--accent-blue); padding: 0.5rem; border-radius: 6px;
+            font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: all 0.2s;
+            text-align: center; display: flex; justify-content: center; align-items: center; gap: 5px;
         }
 
-        .btn-stream:hover {
-            background-color: var(--accent-blue);
-            color: var(--bg-main);
-            box-shadow: 0 0 8px var(--accent-blue);
-        }
-
-        .loading, .no-matches {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-muted);
-            font-size: 1.1rem;
-        }
-
-        .status-bar {
-            text-align: center;
-            font-size: 0.85rem;
-            color: #45f3ff;
-            padding: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .status-bar .dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--accent-glow);
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 8px var(--accent-glow);
-            margin-right: 5px;
-        }
+        .btn-stream:hover { background-color: var(--accent-blue); color: var(--bg-main); box-shadow: 0 0 8px var(--accent-blue); }
+        .loading, .no-matches { grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-light); font-size: 1.1rem; }
+        .status-bar { text-align: center; font-size: 0.85rem; color: #45f3ff; padding: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.05); width: 100%; box-sizing: border-box; }
+        .status-bar .dot { width: 8px; height: 8px; background-color: var(--accent-glow); border-radius: 50%; display: inline-block; box-shadow: 0 0 8px var(--accent-glow); margin-right: 5px; }
     </style>
 
-    <script src="https://proxy.budsin.dev/baremux/index.js" defer></script>
-    <script src="https://proxy.budsin.dev/uv/uv.bundle.js" defer></script>
     <script src="https://proxy.budsin.dev/scram/scram.bundle.js" defer></script>
+    <script src="https://proxy.budsin.dev/register-sw.js" defer></script>
 </head>
 <body>
 
     <header>
         <h1>Budsin <span>Football v4</span></h1>
-        <div class="subtitle">Evasión Total: API, Imágenes y Vídeo bajo Túnel Cifrado</div>
+        <div class="subtitle">Enrutamiento Nativo Scramjet Engine Engine</div>
     </header>
 
     <div class="main-container">
         <div class="search-section">
             <form id="proxy-form">
                 <div class="search-box">
-                    <input type="text" id="proxy-input" placeholder="Pegar enlace externo de partido alternativo..." autocomplete="off">
-                    <button type="submit"><i class="fa-solid fa-play"></i> Enrutar Directo</button>
+                    <input type="text" id="proxy-input" placeholder="Pegar enlace manual de partido alternativo..." autocomplete="off">
+                    <button type="submit"><i class="fa-solid fa-play"></i> Enrutar</button>
                 </div>
             </form>
         </div>
@@ -298,62 +188,59 @@
         </div>
 
         <div class="matches-grid" id="live-matches-container">
-            <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Inicializando túnel proxy seguro...</div>
+            <div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Sincronizando con el controlador Scramjet...</div>
         </div>
     </div>
 
     <div class="status-bar">
-        <span><div class="dot"></div> Todo el tráfico está cifrado a través de proxy.budsin.dev</span>
+        <span><div class="dot"></div> Enrutador perimetral Scramjet activo y mapeado</span>
     </div>
 
     <script>
-        window.wispUrl = "wss://proxy.budsin.dev/wisp/";
-        // Endpoint base del proxy de tu VPS (generalmente hereda el prefijo de Ultraviolet o Scramjet, ej: /service/)
-        window.proxyPrefix = "/service/"; 
-
-        // Función para codificar URLs al formato que espera InvisiProxy/Ultraviolet en base64
-        function getProxiedUrl(targetUrl) {
-            return window.location.origin + window.proxyPrefix + btoa(encodeURIComponent(targetUrl));
+        // Función puente para usar el sjUrl nativo del VPS adaptándolo al dominio local de GitHub
+        function getScramjetUrl(targetUrl) {
+            if (typeof sjUrl === 'function') {
+                // Genera la ruta encriptada usando el algoritmo exacto de InvisiProxy
+                const remotePath = sjUrl(targetUrl); 
+                // Extraemos la parte relativa (/scramjet/... o tu prefijo personalizado)
+                const urlObj = new URL(remotePath, 'https://proxy.budsin.dev');
+                return window.location.origin + urlObj.pathname + urlObj.search;
+            } else {
+                // Fallback de emergencia por si el script tarda milisegundos en cargar
+                return window.location.origin + '/scram/' + btoa(encodeURIComponent(targetUrl));
+            }
         }
 
-        async function initBareMux() {
-            if (window.BareMux) {
+        async function initProxySystem() {
+            const container = document.getElementById('live-matches-container');
+            if ('serviceWorker' in navigator) {
                 try {
-                    const connection = new BareMux.BareMuxConnection("/baremuxworker.js");
-                    await connection.setTransport("WispTransport", { wisp: window.wispUrl });
-                } catch (e) {
-                    console.log("BareMux listo");
+                    // Registramos el worker local bajo el prefijo por defecto de Scramjet
+                    await navigator.serviceWorker.register('./sw.js', { scope: '/scram/' });
+                    await navigator.serviceWorker.ready;
+                    
+                    // Cargar el feed una vez que el túnel esté levantado
+                    loadLiveMatches();
+                } catch (err) {
+                    container.innerHTML = `<div class="no-matches" style="color: var(--live-red);">Fallo de inicialización Scramjet: ${err.message}</div>`;
                 }
             }
         }
 
-        async function registerWorker() {
-            if ('serviceWorker' in navigator) {
-                return await navigator.serviceWorker.register('./sw.js', { scope: window.proxyPrefix });
-            }
-            throw new Error("Service Workers deshabilitados en este navegador.");
-        }
-
-        // FUNCIÓN MODIFICADA: Ahora el fetch pide la info AL PROXY, no a la API directamente
         async function loadLiveMatches() {
             const container = document.getElementById('live-matches-container');
-            
             try {
-                await registerWorker();
-                await initBareMux();
-
-                // ENRUTAMOS EL FETCH: Pasamos la url de la API por nuestro codificador de proxy
                 const targetApiUrl = 'https://streamed.pk/api/matches/football';
-                const proxiedFetchUrl = getProxiedUrl(targetApiUrl);
+                const proxiedFetchUrl = getScramjetUrl(targetApiUrl);
 
                 const response = await fetch(proxiedFetchUrl);
-                if (!response.ok) throw new Error("El firewall bloqueó el nodo o la API está caída.");
+                if (!response.ok) throw new Error("La API bloqueó el túnel o está fuera de línea.");
                 
                 const matches = await response.json();
                 container.innerHTML = '';
 
                 if (matches.length === 0) {
-                    container.innerHTML = '<div class="no-matches">No hay partidos en directo en este instante.</div>';
+                    container.innerHTML = '<div class="no-matches">No hay eventos en vivo en este momento.</div>';
                     return;
                 }
 
@@ -361,19 +248,17 @@
                     const matchCard = document.createElement('div');
                     matchCard.className = 'match-card';
 
-                    // ENRUTAMOS LAS IMÁGENES: Los logos de los equipos también pasan cifrados por el proxy
                     const rawHomeBadge = match.teams?.home?.badge ? `https://streamed.pk/api/images/badge/${match.teams.home.badge}.webp` : '';
                     const rawAwayBadge = match.teams?.away?.badge ? `https://streamed.pk/api/images/badge/${match.teams.away.badge}.webp` : '';
                     
-                    const homeBadge = rawHomeBadge ? getProxiedUrl(rawHomeBadge) : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
-                    const awayBadge = rawAwayBadge ? getProxiedUrl(rawAwayBadge) : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
+                    const homeBadge = rawHomeBadge ? getScramjetUrl(rawHomeBadge) : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
+                    const awayBadge = rawAwayBadge ? getScramjetUrl(rawAwayBadge) : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
 
                     const homeName = match.teams?.home?.name || 'Local';
                     const awayName = match.teams?.away?.name || 'Visitante';
 
                     let streamsHtml = '';
                     match.sources.forEach((src, idx) => {
-                        // Al hacer clic, se llama de forma segura
                         streamsHtml += `
                             <button class="btn-stream" onclick="fetchAndPlayStream('${src.source}', '${src.id}')">
                                 <i class="fa-solid fa-play-circle"></i> Opción ${idx + 1} (${src.source.toUpperCase()})
@@ -402,43 +287,41 @@
                 });
 
             } catch (error) {
-                console.error(error);
-                container.innerHTML = `<div class="no-matches" style="color: var(--live-red);"><i class="fa-solid fa-exclamation-triangle"></i> Error de evasión: ${error.message}</div>`;
+                container.innerHTML = `<div class="no-matches" style="color: var(--live-red);"><i class="fa-solid fa-exclamation-triangle"></i> Error Scramjet API: ${error.message}</div>`;
             }
         }
 
-        // ENRUTAMOS LA SEGUNDA CONSULTA (Buscar el canal de vídeo oculto)
         async function fetchAndPlayStream(source, id) {
             try {
                 const targetStreamUrl = `https://streamed.pk/api/stream/${source}/${id}`;
-                const proxiedStreamUrl = getProxiedUrl(targetStreamUrl);
+                const proxiedStreamUrl = getScramjetUrl(targetStreamUrl);
 
                 const res = await fetch(proxiedStreamUrl);
-                if (!res.ok) throw new Error("Bloqueo en la petición del túnel de vídeo.");
+                if (!res.ok) throw new Error("No se pudo interceptar la respuesta de la señal.");
                 
                 const streams = await res.json();
                 
                 if (streams && streams.length > 0) {
                     const embedUrl = streams[0].embedUrl;
-                    
-                    // Abrir el reproductor final a través del proxy
-                    window.location.href = getProxiedUrl(embedUrl);
+                    // Redirección nativa usando el motor Scramjet
+                    window.location.href = getScramjetUrl(embedUrl);
                 } else {
-                    alert("No hay transmisiones activas en esta opción.");
+                    alert("Opción sin flujos de vídeo activos.");
                 }
             } catch (err) {
-                alert("Error resolviendo los flujos proxy: " + err.message);
+                alert("Error de túnel: " + err.message);
             }
         }
 
         document.getElementById('proxy-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const inputVal = document.getElementById('proxy-input').value.trim();
-            if (inputVal) window.location.href = getProxiedUrl(inputVal);
+            if (inputVal) window.location.href = getScramjetUrl(inputVal);
         });
 
         window.addEventListener('DOMContentLoaded', () => {
-            loadLiveMatches();
+            // Un pequeño delay para asegurar la inyección de los scripts del VPS antes de arrancar
+            setTimeout(initProxySystem, 500);
         });
     </script>
 </body>
