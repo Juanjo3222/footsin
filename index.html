@@ -8,362 +8,111 @@
 <style>
 :root {
   --bg: #0b0c10;
-  --card: #1a1d24;
-  --card-border: rgba(255,255,255,.06);
+  --card: #14171f;
+  --card2: #1a1d26;
+  --border: rgba(255,255,255,.06);
   --accent: #00ffcc;
   --blue: #45f3ff;
-  --muted: #8b9199;
-  --white: #f0f2f5;
+  --muted: #7a8190;
+  --white: #eef0f4;
   --red: #ff3b3b;
-  --radius: 10px;
+  --gold: #ffd166;
+  --r: 10px;
 }
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--muted);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--muted);min-height:100vh;display:flex;flex-direction:column}
 
 /* ── Header ── */
-header {
-  padding: 2rem 1rem 1.5rem;
-  text-align: center;
-  background: linear-gradient(180deg, rgba(69,243,255,.06) 0%, transparent 100%);
-  border-bottom: 1px solid rgba(255,255,255,.04);
-}
+header{padding:1.6rem 1rem 1.2rem;text-align:center;background:linear-gradient(180deg,rgba(69,243,255,.07) 0%,transparent 100%);border-bottom:1px solid var(--border)}
+h1{font-size:1.75rem;font-weight:800;color:var(--white);text-transform:uppercase;letter-spacing:4px}
+h1 span{color:var(--accent)}
+.sub{font-size:.73rem;color:var(--blue);margin-top:.35rem;opacity:.65;letter-spacing:.06em}
 
-h1 {
-  font-size: 1.9rem;
-  font-weight: 800;
-  color: var(--white);
-  text-transform: uppercase;
-  letter-spacing: 4px;
-}
+/* ── Search ── */
+main{max-width:1040px;margin:0 auto;padding:1.2rem 1.2rem 3rem;width:100%;flex:1}
+.search-wrap{background:var(--card);border-radius:var(--r);padding:.85rem 1rem;margin-bottom:1.4rem;border:1px solid var(--border)}
+.search-inner{display:flex;gap:8px;background:rgba(0,0,0,.3);border-radius:7px;border:1px solid rgba(69,243,255,.22);transition:border-color .2s}
+.search-inner:focus-within{border-color:var(--blue)}
+.search-inner input{flex:1;background:none;border:none;outline:none;color:var(--white);font-size:.9rem;padding:.55rem .8rem}
+.search-inner input::placeholder{color:rgba(255,255,255,.18)}
+.search-inner button{background:var(--blue);color:#0b0c10;border:none;padding:0 1.1rem;border-radius:6px;font-weight:700;cursor:pointer;font-size:.82rem;white-space:nowrap;transition:background .2s}
+.search-inner button:hover{background:var(--accent)}
 
-h1 span { color: var(--accent); }
+/* ── Section headers ── */
+.sec{margin-bottom:1.6rem}
+.sec-head{display:flex;align-items:center;gap:9px;margin-bottom:.9rem;color:var(--white);font-size:.9rem;font-weight:700;letter-spacing:.03em}
+.pulse{width:9px;height:9px;border-radius:50%;background:var(--red);flex-shrink:0;animation:pulse 1.5s infinite}
+.pulse.gold{background:var(--gold);animation:none;box-shadow:0 0 6px var(--gold)}
+.pulse.blue{background:var(--blue);animation:none;box-shadow:0 0 6px var(--blue)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,59,59,.7)}70%{box-shadow:0 0 0 8px rgba(255,59,59,0)}}
 
-.sub {
-  font-size: .78rem;
-  color: var(--blue);
-  margin-top: .4rem;
-  opacity: .7;
-  letter-spacing: .04em;
-}
+/* ── Featured row (today's popular) ── */
+.featured-row{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.featured-row::-webkit-scrollbar{height:4px}
+.featured-row::-webkit-scrollbar-track{background:transparent}
+.featured-row::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.featured-card{flex-shrink:0;width:220px;background:linear-gradient(135deg,#1a1d26 0%,#12151d 100%);border-radius:var(--r);padding:1rem;border:1px solid rgba(69,243,255,.15);border-left:3px solid var(--gold);cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.featured-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,209,102,.04) 0%,transparent 60%);pointer-events:none}
+.featured-card:hover{border-color:rgba(255,209,102,.5);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.featured-card .badge{position:absolute;top:8px;right:8px;font-size:.55rem;background:var(--gold);color:#0b0c10;border-radius:3px;padding:2px 5px;font-weight:800;letter-spacing:.05em}
+.featured-title{font-size:.78rem;font-weight:700;color:var(--white);text-align:center;margin-bottom:.7rem;line-height:1.3}
+.featured-teams{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.featured-team{display:flex;flex-direction:column;align-items:center;gap:3px;width:40%}
+.featured-team img{width:34px;height:34px;object-fit:contain;border-radius:50%;background:rgba(255,255,255,.04);padding:2px}
+.featured-team-name{font-size:.65rem;font-weight:600;color:var(--white);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+.featured-vs{font-size:.7rem;font-weight:800;color:var(--gold)}
+.featured-time{text-align:center;font-size:.62rem;color:var(--muted);margin-top:.5rem;opacity:.7}
 
-/* ── Main ── */
-main {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 1.4rem 1.5rem 3rem;
-  width: 100%;
-  flex: 1;
-}
+/* ── Today section (all today) ── */
+.today-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
 
-/* ── Search bar ── */
-.search {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: .9rem 1rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--card-border);
-}
+/* ── Live section ── */
+.live-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
 
-.search-inner {
-  display: flex;
-  gap: 8px;
-  background: rgba(0,0,0,.35);
-  border-radius: 7px;
-  border: 1px solid rgba(69,243,255,.25);
-  transition: border-color .2s;
-}
+/* ── Cards ── */
+.card{background:var(--card);border-radius:var(--r);padding:1rem;border:1px solid var(--border);border-left:3px solid var(--blue);display:flex;flex-direction:column;gap:.65rem;transition:border-color .18s,transform .15s}
+.card:hover{border-left-color:var(--accent);transform:translateY(-1px)}
+.card.today-card{border-left-color:rgba(69,243,255,.4)}
+.match-title{font-size:.78rem;font-weight:600;color:var(--white);text-align:center;line-height:1.3}
+.teams{display:flex;justify-content:space-around;align-items:center}
+.team{display:flex;flex-direction:column;align-items:center;width:40%;gap:4px}
+.team img{width:36px;height:36px;object-fit:contain;border-radius:50%;background:rgba(255,255,255,.04);padding:2px}
+.team-name{font-size:.67rem;font-weight:600;color:var(--white);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+.vs{font-size:.72rem;font-weight:800;color:var(--accent)}
+.match-time{text-align:center;font-size:.62rem;color:var(--muted);opacity:.65}
+.streams{display:flex;flex-direction:column;gap:4px}
 
-.search-inner:focus-within { border-color: var(--blue); }
+/* ── Buttons ── */
+.btn-load{background:rgba(0,255,204,.06);color:var(--accent);border:1px solid rgba(0,255,204,.22);padding:.4rem;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s;width:100%;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-load:hover{background:var(--accent);color:#0b0c10}
+.btn-stream{background:rgba(69,243,255,.06);color:var(--blue);border:1px solid rgba(69,243,255,.18);padding:.38rem .6rem;border-radius:6px;font-size:.7rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;width:100%}
+.btn-stream:hover{background:var(--blue);color:#0b0c10;border-color:var(--blue)}
+.btn-stream:disabled{opacity:.4;cursor:wait}
+.lang-label{font-size:.6rem;opacity:.4;text-transform:uppercase;letter-spacing:.08em;margin:.25rem 0 .1rem}
+.badge-hd{font-size:.55rem;background:var(--accent);color:#0b0c10;border-radius:3px;padding:1px 4px;font-weight:800}
+.badge-sd{font-size:.55rem;background:rgba(255,255,255,.07);color:var(--muted);border-radius:3px;padding:1px 4px}
+.badge-viewers{font-size:.58rem;opacity:.5;margin-left:2px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--red);display:inline-block;margin-right:4px;animation:pulse 1.5s infinite;flex-shrink:0}
 
-.search-inner input {
-  flex: 1;
-  background: none;
-  border: none;
-  outline: none;
-  color: var(--white);
-  font-size: .92rem;
-  padding: .6rem .85rem;
-}
+/* ── States ── */
+.info{text-align:center;padding:2rem;color:var(--muted);grid-column:1/-1;font-size:.85rem}
+.err{color:var(--red)}
+.empty{opacity:.5}
 
-.search-inner input::placeholder { color: rgba(255,255,255,.2); }
-
-.search-inner button {
-  background: var(--blue);
-  color: #0b0c10;
-  border: none;
-  padding: 0 1.2rem;
-  border-radius: 6px;
-  font-weight: 700;
-  cursor: pointer;
-  font-size: .85rem;
-  white-space: nowrap;
-  transition: background .2s;
-}
-
-.search-inner button:hover { background: var(--accent); }
-
-/* ── Section header ── */
-.sec-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 1rem;
-  color: var(--white);
-  font-size: .95rem;
-  font-weight: 600;
-}
-
-.pulse {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--red);
-  flex-shrink: 0;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255,59,59,.7); }
-  70%       { box-shadow: 0 0 0 8px rgba(255,59,59,0); }
-}
-
-/* ── Match grid ── */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
-  gap: 14px;
-}
-
-.card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 1.1rem 1rem;
-  border: 1px solid var(--card-border);
-  border-left: 3px solid var(--blue);
-  display: flex;
-  flex-direction: column;
-  gap: .7rem;
-  transition: border-color .2s, transform .15s;
-}
-
-.card:hover { border-left-color: var(--accent); transform: translateY(-1px); }
-
-.match-title {
-  font-size: .82rem;
-  font-weight: 600;
-  color: var(--white);
-  text-align: center;
-  line-height: 1.35;
-}
-
-.teams {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-}
-
-.team {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 42%;
-  gap: 5px;
-}
-
-.team img {
-  width: 38px;
-  height: 38px;
-  object-fit: contain;
-  border-radius: 50%;
-  background: rgba(255,255,255,.04);
-  padding: 3px;
-}
-
-.team-name {
-  font-size: .7rem;
-  font-weight: 600;
-  color: var(--white);
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
-}
-
-.vs {
-  font-size: .78rem;
-  font-weight: 800;
-  color: var(--accent);
-}
-
-/* ── Stream buttons ── */
-.streams { display: flex; flex-direction: column; gap: 5px; }
-
-.btn-load {
-  background: rgba(0,255,204,.06);
-  color: var(--accent);
-  border: 1px solid rgba(0,255,204,.25);
-  padding: .45rem;
-  border-radius: 6px;
-  font-size: .76rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all .2s;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.btn-load:hover { background: var(--accent); color: #0b0c10; }
-
-.btn-stream {
-  background: rgba(69,243,255,.06);
-  color: var(--blue);
-  border: 1px solid rgba(69,243,255,.2);
-  padding: .42rem .6rem;
-  border-radius: 6px;
-  font-size: .74rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all .2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  width: 100%;
-}
-
-.btn-stream:hover { background: var(--blue); color: #0b0c10; border-color: var(--blue); }
-.btn-stream:disabled { opacity: .45; cursor: wait; }
-
-.lang-label {
-  font-size: .65rem;
-  opacity: .45;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  margin: .3rem 0 .15rem;
-}
-
-.badge-hd {
-  font-size: .58rem;
-  background: var(--accent);
-  color: #0b0c10;
-  border-radius: 3px;
-  padding: 1px 4px;
-  font-weight: 800;
-}
-
-.badge-sd {
-  font-size: .58rem;
-  background: rgba(255,255,255,.08);
-  color: var(--muted);
-  border-radius: 3px;
-  padding: 1px 4px;
-}
-
-.badge-viewers {
-  font-size: .62rem;
-  opacity: .55;
-  margin-left: 2px;
-}
-
-/* ── Info / error states ── */
-.info {
-  text-align: center;
-  padding: 2.5rem;
-  color: var(--muted);
-  grid-column: 1 / -1;
-  font-size: .88rem;
-}
-
-.err { color: var(--red); }
-
-/* ── Player modal ── */
-#player-modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.96);
-  z-index: 9999;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-#player-modal.show { display: flex; }
-
-#player-modal iframe {
-  width: min(960px, 96vw);
-  height: min(540px, 54vw);
-  border: none;
-  border-radius: 8px;
-  background: #000;
-}
-
-.player-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-#player-title {
-  font-size: .82rem;
-  color: var(--muted);
-  max-width: 400px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#close-player {
-  background: rgba(255,255,255,.08);
-  color: var(--white);
-  border: 1px solid rgba(255,255,255,.15);
-  padding: .45rem 1.2rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: .82rem;
-  transition: background .2s;
-}
-
-#close-player:hover { background: rgba(255,255,255,.16); }
+/* ── Tabs ── */
+.tabs{display:flex;gap:6px;margin-bottom:1rem}
+.tab{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:.4rem .9rem;border-radius:20px;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s}
+.tab.active{background:rgba(69,243,255,.12);border-color:var(--blue);color:var(--blue)}
+.tab:hover:not(.active){border-color:rgba(69,243,255,.3);color:var(--white)}
 
 /* ── Footer ── */
-footer {
-  text-align: center;
-  padding: .8rem;
-  font-size: .72rem;
-  color: rgba(69,243,255,.45);
-  border-top: 1px solid rgba(255,255,255,.04);
-}
-
-.dot-s {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  display: inline-block;
-  box-shadow: 0 0 5px var(--accent);
-  margin-right: 5px;
-  vertical-align: middle;
-}
+footer{text-align:center;padding:.7rem;font-size:.68rem;color:rgba(69,243,255,.35);border-top:1px solid var(--border);margin-top:auto}
+.dot-s{width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;box-shadow:0 0 4px var(--accent);margin-right:4px;vertical-align:middle}
 
 /* ── Responsive ── */
-@media (max-width: 500px) {
-  h1 { font-size: 1.4rem; }
-  #player-modal iframe { height: 56vw; }
+@media(max-width:520px){
+  h1{font-size:1.3rem;letter-spacing:2px}
+  .featured-card{width:185px}
 }
 </style>
 </head>
@@ -375,36 +124,42 @@ footer {
 </header>
 
 <main>
-  <div class="search">
+  <!-- Search -->
+  <div class="search-wrap">
     <div class="search-inner">
       <input id="url-input" type="text" placeholder="Pegar URL de partido externo...">
-      <button onclick="openEmbed()"><i class="fa-solid fa-play"></i> Abrir</button>
+      <button onclick="openStream()"><i class="fa-solid fa-play"></i> Abrir</button>
     </div>
   </div>
 
-  <div class="sec-head">
-    <div class="pulse"></div>
-    Partidos en vivo · Fútbol
+  <!-- Featured today -->
+  <div class="sec" id="sec-featured">
+    <div class="sec-head"><div class="pulse gold"></div><span id="featured-label">Destacados de hoy</span></div>
+    <div class="featured-row" id="featured-row">
+      <div class="info"><i class="fa-solid fa-spinner fa-spin"></i></div>
+    </div>
   </div>
 
-  <div class="grid" id="matches">
-    <div class="info"><i class="fa-solid fa-spinner fa-spin"></i> Cargando partidos...</div>
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('live')"><i class="fa-solid fa-circle" style="color:var(--red);font-size:.5rem;vertical-align:middle;margin-right:4px"></i>En vivo</button>
+    <button class="tab" onclick="switchTab('today')"><i class="fa-regular fa-calendar-days" style="margin-right:4px"></i>Hoy</button>
+  </div>
+
+  <!-- Live section -->
+  <div class="sec" id="tab-live">
+    <div class="live-grid" id="live-grid">
+      <div class="info"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+    </div>
+  </div>
+
+  <!-- Today section -->
+  <div class="sec" id="tab-today" style="display:none">
+    <div class="today-grid" id="today-grid">
+      <div class="info"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+    </div>
   </div>
 </main>
-
-<!-- Modal reproductor -->
-<div id="player-modal">
-  <iframe id="stream-frame"
-    allowfullscreen
-    allow="autoplay; fullscreen; encrypted-media; picture-in-picture">
-  </iframe>
-  <div class="player-bar">
-    <span id="player-title"></span>
-    <button id="close-player" onclick="closePlayer()">
-      <i class="fa-solid fa-xmark"></i> Cerrar
-    </button>
-  </div>
-</div>
 
 <footer><span class="dot-s"></span>Conexión cifrada · proxy.budsin.dev</footer>
 
@@ -412,180 +167,265 @@ footer {
 const VPS = 'https://proxy.budsin.dev';
 
 const LANG_FLAGS = {
-  'English': '🇬🇧', 'Spanish': '🇪🇸', 'Portuguese': '🇵🇹',
-  'French': '🇫🇷', 'German': '🇩🇪', 'Italian': '🇮🇹',
-  'Arabic': '🇸🇦', 'Turkish': '🇹🇷', 'Dutch': '🇳🇱',
-  'Russian': '🇷🇺', 'Romanian': '🇷🇴', 'Polish': '🇵🇱',
+  'English':'🇬🇧','Spanish':'🇪🇸','Portuguese':'🇵🇹','French':'🇫🇷',
+  'German':'🇩🇪','Italian':'🇮🇹','Arabic':'🇸🇦','Turkish':'🇹🇷',
+  'Dutch':'🇳🇱','Russian':'🇷🇺','Romanian':'🇷🇴','Polish':'🇵🇱',
 };
+const flag = l => LANG_FLAGS[l] || '🌐';
 
-function flag(lang) { return LANG_FLAGS[lang] || '🌐'; }
+// Limpia el badge ID (la API manda basura extra)
+const cleanBadge = b => b ? b.replace(/[^A-Za-z0-9+/=_-]/g,'').slice(0,120) : '';
 
-// ── Reproductor ───────────────────────────────────────────────
+// Formatea hora local desde timestamp ms
+function fmtTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  return d.toLocaleTimeString('es', {hour:'2-digit', minute:'2-digit'});
+}
 
-function openEmbed(url, title) {
+// Es hoy?
+function isToday(ts) {
+  if (!ts) return false;
+  const d = new Date(ts), now = new Date();
+  return d.getDate()===now.getDate() && d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+}
+
+// Label dinámico por día de la semana
+function todayLabel() {
+  const days = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const d = new Date();
+  return `Destacados del ${days[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}`;
+}
+
+// ── Abrir stream ─────────────────────────────────────────────
+function openStream(url) {
   const target = url || document.getElementById('url-input').value.trim();
   if (!target) return;
   const full = /^https?:\/\//i.test(target) ? target : 'https://' + target;
-  const proxyUrl = `${VPS}/api/football/embed?url=${encodeURIComponent(full)}`;
-
-  const frame = document.getElementById('stream-frame');
-  const modal = document.getElementById('player-modal');
-  const titleEl = document.getElementById('player-title');
-
-  frame.src = proxyUrl;
-  titleEl.textContent = title || full;
-  modal.classList.add('show');
-  document.body.style.overflow = 'hidden';
+  window.open(`${VPS}/scramjet?url=${encodeURIComponent(full)}`, '_blank');
 }
 
-function closePlayer() {
-  document.getElementById('player-modal').classList.remove('show');
-  document.getElementById('stream-frame').src = '';
-  document.getElementById('player-title').textContent = '';
-  document.body.style.overflow = '';
+// ── Tab switching ─────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.closest('.tab').classList.add('active');
+  document.getElementById('tab-live').style.display  = tab==='live'  ? '' : 'none';
+  document.getElementById('tab-today').style.display = tab==='today' ? '' : 'none';
 }
 
-// Cerrar con Escape
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closePlayer(); });
+// ── Render featured card ──────────────────────────────────────
+function renderFeatured(m) {
+  const home = m.teams?.home, away = m.teams?.away;
+  const homeBadge = home?.badge ? `${VPS}/api/football/badge/${cleanBadge(home.badge)}` : '';
+  const awayBadge = away?.badge ? `${VPS}/api/football/badge/${cleanBadge(away.badge)}` : '';
+  const timeStr = m.date ? fmtTime(m.date) : '';
 
-// Cerrar clickando fuera del iframe
-document.getElementById('player-modal').addEventListener('click', function(e) {
-  if (e.target === this) closePlayer();
-});
+  const el = document.createElement('div');
+  el.className = 'featured-card';
+  el.innerHTML = `
+    <div class="badge">DESTACADO</div>
+    <div class="featured-title">${m.title}</div>
+    <div class="featured-teams">
+      <div class="featured-team">
+        ${homeBadge ? `<img src="${homeBadge}" onerror="this.style.display='none'" alt="">` : ''}
+        <div class="featured-team-name">${home?.name||'Local'}</div>
+      </div>
+      <div class="featured-vs">VS</div>
+      <div class="featured-team">
+        ${awayBadge ? `<img src="${awayBadge}" onerror="this.style.display='none'" alt="">` : ''}
+        <div class="featured-team-name">${away?.name||'Visitante'}</div>
+      </div>
+    </div>
+    ${timeStr ? `<div class="featured-time"><i class="fa-regular fa-clock"></i> ${timeStr}</div>` : ''}`;
 
-// ── Carga de partidos ─────────────────────────────────────────
-
-async function loadMatches() {
-  const grid = document.getElementById('matches');
-  try {
-    const r = await fetch(`${VPS}/api/football/matches`);
-    if (!r.ok) throw new Error(`Error ${r.status} — ¿Están los endpoints en el VPS?`);
-    const matches = await r.json();
-
-    if (!Array.isArray(matches) || !matches.length) {
-      grid.innerHTML = '<div class="info">No hay partidos en vivo ahora mismo. Vuelve más tarde.</div>';
-      return;
-    }
-
-    grid.innerHTML = '';
-    matches.forEach(m => renderCard(grid, m));
-
-  } catch(e) {
-    grid.innerHTML = `<div class="info err">
-      <i class="fa-solid fa-triangle-exclamation"></i> ${e.message}
-    </div>`;
-  }
+  el.addEventListener('click', () => loadStreamsPopup(m.id, m.title, el));
+  return el;
 }
 
-function renderCard(grid, m) {
-  const home = m.teams?.home;
-  const away = m.teams?.away;
-  const homeBadge = home?.badge ? `${VPS}/api/football/badge/${home.badge}` : '';
-  const awayBadge = away?.badge ? `${VPS}/api/football/badge/${away.badge}` : '';
+// ── Render match card ─────────────────────────────────────────
+function renderCard(m, extraClass='') {
+  const home = m.teams?.home, away = m.teams?.away;
+  const homeBadge = home?.badge ? `${VPS}/api/football/badge/${cleanBadge(home.badge)}` : '';
+  const awayBadge = away?.badge ? `${VPS}/api/football/badge/${cleanBadge(away.badge)}` : '';
+  const timeStr = m.date ? fmtTime(m.date) : '';
+  const isLive = m.sources?.length > 0;
 
   const card = document.createElement('div');
-  card.className = 'card';
+  card.className = `card ${extraClass}`;
 
   card.innerHTML = `
-    <div class="match-title">${m.title}</div>
+    <div class="match-title">
+      ${isLive && extraClass.includes('live') ? '<span class="live-dot"></span>' : ''}${m.title}
+    </div>
     <div class="teams">
       <div class="team">
-        ${homeBadge ? `<img src="${homeBadge}" loading="lazy" onerror="this.style.display='none'" alt="${home?.name || ''}">` : ''}
-        <div class="team-name">${home?.name || 'Local'}</div>
+        ${homeBadge ? `<img src="${homeBadge}" loading="lazy" onerror="this.style.display='none'" alt="">` : ''}
+        <div class="team-name">${home?.name||'Local'}</div>
       </div>
       <div class="vs">VS</div>
       <div class="team">
-        ${awayBadge ? `<img src="${awayBadge}" loading="lazy" onerror="this.style.display='none'" alt="${away?.name || ''}">` : ''}
-        <div class="team-name">${away?.name || 'Visitante'}</div>
+        ${awayBadge ? `<img src="${awayBadge}" loading="lazy" onerror="this.style.display='none'" alt="">` : ''}
+        <div class="team-name">${away?.name||'Visitante'}</div>
       </div>
     </div>
+    ${timeStr ? `<div class="match-time"><i class="fa-regular fa-clock"></i> ${timeStr}</div>` : ''}
     <div class="streams" id="streams-${m.id}">
-      <button class="btn-load" onclick="loadStreams('${m.id}', '${(m.title || '').replace(/'/g, "\\'")}', this)">
-        <i class="fa-solid fa-satellite-dish"></i> Ver streams disponibles
-      </button>
+      ${isLive
+        ? `<button class="btn-load" onclick="loadStreamsPopup('${m.id}','${(m.title||'').replace(/'/g,"\\'")}',this)">
+             <i class="fa-solid fa-satellite-dish"></i> Ver streams
+           </button>`
+        : `<div style="text-align:center;font-size:.68rem;opacity:.4;padding:.3rem">Sin señal aún</div>`
+      }
     </div>`;
-
-  grid.appendChild(card);
+  return card;
 }
 
-// ── Carga de streams por partido ──────────────────────────────
-
-async function loadStreams(matchId, matchTitle, btn) {
+// ── Load streams ──────────────────────────────────────────────
+async function loadStreamsPopup(matchId, matchTitle, triggerEl) {
   const container = document.getElementById(`streams-${matchId}`);
-  container.innerHTML = `<div style="text-align:center;padding:.5rem;font-size:.78rem;opacity:.5">
-    <i class="fa-solid fa-spinner fa-spin"></i> Buscando streams...
+  if (!container) return;
+
+  // Si ya están cargados y visibles, no recargar
+  if (container.dataset.loaded === '1') return;
+
+  container.innerHTML = `<div style="text-align:center;padding:.4rem;font-size:.72rem;opacity:.5">
+    <i class="fa-solid fa-spinner fa-spin"></i> Buscando...
   </div>`;
 
   try {
     const r = await fetch(`${VPS}/api/football/streams/${matchId}`);
     if (!r.ok) throw new Error(`Error ${r.status}`);
-    const byLanguage = await r.json();
+    const byLang = await r.json();
+    const langs = Object.keys(byLang);
 
-    const langs = Object.keys(byLanguage);
     if (!langs.length) {
-      container.innerHTML = `<div style="text-align:center;padding:.5rem;font-size:.75rem;opacity:.45">
-        Sin streams activos ahora mismo.
-      </div>`;
+      container.innerHTML = `<div style="text-align:center;font-size:.7rem;opacity:.4;padding:.3rem">Sin señal activa</div>`;
       return;
     }
 
     container.innerHTML = '';
+    container.dataset.loaded = '1';
 
-    // English y Spanish primero, resto alfabético
-    const order = ['English', 'Spanish', 'Portuguese'];
-    langs.sort((a, b) => {
-      const ai = order.indexOf(a), bi = order.indexOf(b);
-      if (ai !== -1 && bi !== -1) return ai - bi;
-      if (ai !== -1) return -1;
-      if (bi !== -1) return 1;
+    // Ordenar: English, Spanish, Portuguese, resto
+    const order = ['English','Spanish','Portuguese'];
+    langs.sort((a,b) => {
+      const ai=order.indexOf(a), bi=order.indexOf(b);
+      if(ai>-1&&bi>-1) return ai-bi;
+      if(ai>-1) return -1;
+      if(bi>-1) return 1;
       return a.localeCompare(b);
     });
 
     for (const lang of langs) {
-      const streams = byLanguage[lang];
+      const streams = byLang[lang];
+      const lbl = document.createElement('div');
+      lbl.className = 'lang-label';
+      lbl.textContent = `${flag(lang)} ${lang}`;
+      container.appendChild(lbl);
 
-      const label = document.createElement('div');
-      label.className = 'lang-label';
-      label.textContent = `${flag(lang)} ${lang}`;
-      container.appendChild(label);
-
-      streams.forEach((s, i) => {
+      streams.forEach((s,i) => {
         const btn = document.createElement('button');
         btn.className = 'btn-stream';
-
-        const hdBadge = s.hd
-          ? '<span class="badge-hd">HD</span>'
-          : '<span class="badge-sd">SD</span>';
-
-        const viewers = s.viewers
-          ? `<span class="badge-viewers">${s.viewers} 👁</span>`
-          : '';
-
-        btn.innerHTML = `<i class="fa-solid fa-play-circle"></i> Stream ${i + 1} ${hdBadge} ${viewers}`;
-
-        btn.addEventListener('click', () => {
-          openEmbed(s.embedUrl, `${matchTitle} — ${flag(lang)} ${lang} Stream ${i + 1}`);
-        });
-
+        const hd = s.hd ? '<span class="badge-hd">HD</span>' : '<span class="badge-sd">SD</span>';
+        const views = s.viewers ? `<span class="badge-viewers">${s.viewers}👁</span>` : '';
+        btn.innerHTML = `<i class="fa-solid fa-play-circle"></i> Stream ${i+1} ${hd} ${views}`;
+        btn.addEventListener('click', () => openStream(s.embedUrl));
         container.appendChild(btn);
       });
     }
-
   } catch(e) {
-    container.innerHTML = `<div style="text-align:center;padding:.5rem;font-size:.75rem;color:var(--red)">
-      Error: ${e.message}
-    </div>`;
+    container.innerHTML = `<div style="text-align:center;font-size:.7rem;color:var(--red);padding:.3rem">Error: ${e.message}</div>`;
   }
 }
 
-// ── Enter en buscador ─────────────────────────────────────────
+// ── Fetch and render all sections ────────────────────────────
+async function loadAll() {
+  try {
+    // 1. Live matches
+    const liveRes = await fetch(`${VPS}/api/football/matches`);
+    const liveMatches = liveRes.ok ? await liveRes.json() : [];
+
+    // 2. Today matches (use /all-today endpoint via proxy)
+    const todayRes = await fetch(`${VPS}/api/football/today`);
+    const todayMatches = todayRes.ok ? await todayRes.json() : [];
+
+    renderFeaturedSection(liveMatches, todayMatches);
+    renderLive(liveMatches);
+    renderToday(todayMatches, liveMatches);
+
+  } catch(e) {
+    document.getElementById('live-grid').innerHTML =
+      `<div class="info err"><i class="fa-solid fa-triangle-exclamation"></i> ${e.message}</div>`;
+  }
+}
+
+function renderFeaturedSection(live, today) {
+  const row = document.getElementById('featured-row');
+  document.getElementById('featured-label').textContent = todayLabel();
+
+  // Featured = partidos populares de hoy + live populares, ordenados por hora
+  const seen = new Set();
+  const featured = [];
+
+  // Primero los populares de hoy (del endpoint today)
+  [...today].filter(m => m.popular).forEach(m => { if(!seen.has(m.id)){seen.add(m.id);featured.push(m);} });
+  // Luego live populares
+  [...live].filter(m => m.popular).forEach(m => { if(!seen.has(m.id)){seen.add(m.id);featured.push(m);} });
+  // Si no hay populares, tomar los primeros 8 de today
+  if (!featured.length) today.slice(0,8).forEach(m => { if(!seen.has(m.id)){seen.add(m.id);featured.push(m);} });
+  // Ordenar por hora
+  featured.sort((a,b) => (a.date||0) - (b.date||0));
+
+  if (!featured.length) {
+    row.innerHTML = '<div style="padding:1rem;opacity:.4;font-size:.8rem">No hay partidos destacados hoy</div>';
+    return;
+  }
+  row.innerHTML = '';
+  featured.slice(0,12).forEach(m => row.appendChild(renderFeatured(m)));
+}
+
+function renderLive(matches) {
+  const grid = document.getElementById('live-grid');
+  if (!matches.length) {
+    grid.innerHTML = '<div class="info empty">No hay partidos en vivo ahora mismo.</div>';
+    return;
+  }
+  grid.innerHTML = '';
+  // Populares primero, luego resto
+  const sorted = [...matches].sort((a,b) => (b.popular?1:0)-(a.popular?1:0) || (a.date||0)-(b.date||0));
+  sorted.forEach(m => grid.appendChild(renderCard(m, 'live-card')));
+}
+
+function renderToday(today, live) {
+  const grid = document.getElementById('today-grid');
+  if (!today.length) {
+    grid.innerHTML = '<div class="info empty">No hay más partidos programados para hoy.</div>';
+    return;
+  }
+  // Excluir los ya en vivo
+  const liveIds = new Set(live.map(m => m.id));
+  // Ordenar por hora
+  const sorted = [...today].sort((a,b) => {
+    // Populares primero dentro del mismo bloque
+    const aLive = liveIds.has(a.id), bLive = liveIds.has(b.id);
+    if (aLive !== bLive) return aLive ? -1 : 1;
+    return (a.date||0) - (b.date||0);
+  });
+  grid.innerHTML = '';
+  sorted.forEach(m => {
+    const card = renderCard(m, liveIds.has(m.id) ? 'today-card live-card' : 'today-card');
+    grid.appendChild(card);
+  });
+}
+
+// ── Enter en search ───────────────────────────────────────────
 document.getElementById('url-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') openEmbed();
+  if (e.key==='Enter') openStream();
 });
 
 // ── Init ──────────────────────────────────────────────────────
-loadMatches();
-setInterval(loadMatches, 90_000);
+loadAll();
+setInterval(loadAll, 90_000);
 </script>
 </body>
 </html>
