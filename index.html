@@ -30,6 +30,7 @@ main{max-width:980px;margin:0 auto;padding:1rem 1.5rem 3rem;width:100%;flex:1}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,59,59,.7)}70%{box-shadow:0 0 0 8px rgba(255,59,59,0)}}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+
 .card{background:var(--card);border-radius:10px;padding:1.1rem 1rem;border:1px solid rgba(255,255,255,.05);border-left:4px solid var(--blue);display:flex;flex-direction:column;gap:.7rem}
 .match-title{font-size:.85rem;font-weight:600;color:var(--white);text-align:center;line-height:1.3}
 .teams{display:flex;justify-content:space-around;align-items:center}
@@ -38,11 +39,17 @@ main{max-width:980px;margin:0 auto;padding:1rem 1.5rem 3rem;width:100%;flex:1}
 .team-name{font-size:.72rem;font-weight:600;color:var(--white);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
 .vs{font-size:.8rem;font-weight:700;color:var(--accent)}
 .streams{display:flex;flex-direction:column;gap:5px}
+
 .btn-stream{background:rgba(69,243,255,.07);color:var(--blue);border:1px solid rgba(69,243,255,.3);padding:.42rem .6rem;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;width:100%}
 .btn-stream:hover{background:var(--blue);color:#0b0c10;border-color:var(--blue)}
 .btn-stream:disabled{opacity:.5;cursor:wait}
-.badge-hd{font-size:.6rem;background:var(--accent);color:#0b0c10;border-radius:3px;padding:1px 4px;margin-left:2px;font-weight:800}
-.badge-lang{font-size:.6rem;opacity:.6;font-weight:400;margin-left:2px}
+.btn-load{background:rgba(0,255,204,.07);color:var(--accent);border-color:rgba(0,255,204,.3)}
+.btn-load:hover{background:var(--accent);color:#0b0c10;border-color:var(--accent)}
+
+.lang-label{font-size:.68rem;opacity:.45;margin:.35rem 0 .15rem;text-transform:uppercase;letter-spacing:.06em}
+.badge-hd{font-size:.58rem;background:var(--accent);color:#0b0c10;border-radius:3px;padding:1px 4px;margin-left:3px;font-weight:800}
+.badge-sd{font-size:.58rem;background:rgba(255,255,255,.1);color:var(--muted);border-radius:3px;padding:1px 4px;margin-left:3px}
+.badge-viewers{font-size:.63rem;opacity:.55;margin-left:3px}
 
 .info{text-align:center;padding:2.5rem;color:var(--muted);grid-column:1/-1;font-size:.9rem}
 .err{color:var(--red)}
@@ -77,26 +84,42 @@ footer{text-align:center;padding:.8rem;font-size:.75rem;color:var(--blue);border
 <script>
 const VPS = 'https://proxy.budsin.dev';
 
-// Manda al usuario a la página de browsing de InvisiProxy con la URL como hash.
-// surf.html lee window.location.hash y lo pasa a Scramjet nativamente.
+const LANG_FLAGS = {
+  'English':    '🇬🇧',
+  'Spanish':    '🇪🇸',
+  'Portuguese': '🇵🇹',
+  'French':     '🇫🇷',
+  'German':     '🇩🇪',
+  'Italian':    '🇮🇹',
+  'Arabic':     '🇸🇦',
+  'Turkish':    '🇹🇷',
+  'Dutch':      '🇳🇱',
+  'Russian':    '🇷🇺',
+  'Romanian':   '🇷🇴',
+  'Polish':     '🇵🇱',
+  'Greek':      '🇬🇷',
+};
+
+function flag(lang) {
+  return LANG_FLAGS[lang] || '🌐';
+}
+
 function openInProxy(url) {
   const target = url || document.getElementById('url-input').value.trim();
   if (!target) return;
   const full = /^https?:\/\//i.test(target) ? target : 'https://' + target;
-  // InvisiProxy lee el hash en surf.html y lo abre con sjUrl() nativo
   window.open(`${VPS}/browsing#${encodeURIComponent(full)}`, '_blank');
 }
 
-// Carga partidos desde los endpoints proxy en tu VPS
 async function loadMatches() {
   const grid = document.getElementById('matches');
   try {
     const r = await fetch(`${VPS}/api/football/matches`);
-    if (!r.ok) throw new Error(`Error ${r.status} — ¿Están los endpoints en el VPS?`);
+    if (!r.ok) throw new Error(`Error ${r.status}`);
     const matches = await r.json();
 
     if (!Array.isArray(matches) || !matches.length) {
-      grid.innerHTML = '<div class="info">No hay partidos en vivo ahora mismo. Vuelve más tarde.</div>';
+      grid.innerHTML = '<div class="info">No hay partidos en vivo ahora mismo.</div>';
       return;
     }
 
@@ -105,8 +128,7 @@ async function loadMatches() {
 
   } catch(e) {
     grid.innerHTML = `<div class="info err">
-      <i class="fa-solid fa-triangle-exclamation"></i> ${e.message}<br>
-      <small style="opacity:.6;margin-top:.4rem;display:block">Asegúrate de que los endpoints /api/football/* están en server.mjs</small>
+      <i class="fa-solid fa-triangle-exclamation"></i> ${e.message}
     </div>`;
   }
 }
@@ -119,14 +141,6 @@ function renderCard(grid, m) {
 
   const card = document.createElement('div');
   card.className = 'card';
-
-  const btnHtml = m.sources.map((s, i) =>
-    `<button class="btn-stream" data-source="${s.source}" data-id="${s.id}">
-      <i class="fa-solid fa-play-circle"></i>
-      Opción ${i + 1}
-      <span class="badge-lang">${s.source}</span>
-    </button>`
-  ).join('');
 
   card.innerHTML = `
     <div class="match-title">${m.title}</div>
@@ -141,59 +155,74 @@ function renderCard(grid, m) {
         <div class="team-name">${away?.name || 'Visitante'}</div>
       </div>
     </div>
-    <div class="streams">${btnHtml}</div>`;
-
-  card.querySelectorAll('.btn-stream').forEach(btn => {
-    btn.addEventListener('click', () => getStream(
-      btn.dataset.source,
-      btn.dataset.id,
-      btn
-    ));
-  });
+    <div class="streams" id="streams-${m.id}">
+      <button class="btn-stream btn-load" onclick="loadStreams('${m.id}', this)">
+        <i class="fa-solid fa-satellite-dish"></i> Ver streams disponibles
+      </button>
+    </div>`;
 
   grid.appendChild(card);
 }
 
-async function getStream(source, id, btn) {
-  const orig = btn.innerHTML;
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Conectando...';
-  btn.disabled = true;
+async function loadStreams(matchId, btn) {
+  const container = document.getElementById(`streams-${matchId}`);
+  container.innerHTML = '<div style="text-align:center;padding:.5rem;font-size:.8rem;opacity:.6"><i class="fa-solid fa-spinner fa-spin"></i> Buscando streams...</div>';
 
   try {
-    const r = await fetch(`${VPS}/api/football/stream/${source}/${id}`);
+    const r = await fetch(`${VPS}/api/football/streams/${matchId}`);
     if (!r.ok) throw new Error(`Error ${r.status}`);
-    const streams = await r.json();
+    const byLanguage = await r.json();
 
-    if (!streams?.length) {
-      alert('Sin señal activa en esta opción. Prueba otra.');
+    const langs = Object.keys(byLanguage);
+    if (!langs.length) {
+      container.innerHTML = '<div style="text-align:center;padding:.5rem;font-size:.78rem;opacity:.5">Sin streams activos ahora mismo.</div>';
       return;
     }
 
-    // Preferir HD, si no el primero disponible
-    const best = streams.find(s => s.hd) || streams[0];
+    container.innerHTML = '';
 
-    // Marcar HD en el botón
-    if (best.hd) {
-      btn.innerHTML = orig + '<span class="badge-hd">HD</span>';
+    // English y Spanish primero, resto alfabético
+    const priority = ['English', 'Spanish', 'Portuguese'];
+    langs.sort((a, b) => {
+      const ai = priority.indexOf(a), bi = priority.indexOf(b);
+      if (ai !== -1 && bi !== -1) return ai - bi;
+      if (ai !== -1) return -1;
+      if (bi !== -1) return 1;
+      return a.localeCompare(b);
+    });
+
+    for (const lang of langs) {
+      const streams = byLanguage[lang];
+
+      const label = document.createElement('div');
+      label.className = 'lang-label';
+      label.textContent = `${flag(lang)} ${lang}`;
+      container.appendChild(label);
+
+      streams.forEach((s, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-stream';
+        const viewers = s.viewers ? `<span class="badge-viewers">${s.viewers} 👁</span>` : '';
+        const quality = s.hd
+          ? '<span class="badge-hd">HD</span>'
+          : '<span class="badge-sd">SD</span>';
+        btn.innerHTML = `<i class="fa-solid fa-play-circle"></i> Stream ${i + 1} ${quality} ${viewers}`;
+        btn.addEventListener('click', () => openInProxy(s.embedUrl));
+        container.appendChild(btn);
+      });
     }
 
-    // Abrir el embedUrl en InvisiProxy via /browsing
-    openInProxy(best.embedUrl);
-
   } catch(e) {
-    alert('Error obteniendo señal: ' + e.message);
-    btn.innerHTML = orig;
-  } finally {
-    btn.disabled = false;
+    container.innerHTML = `<div style="text-align:center;padding:.5rem;font-size:.78rem;color:var(--red)">
+      <i class="fa-solid fa-triangle-exclamation"></i> ${e.message}
+    </div>`;
   }
 }
 
-// Soporte para Enter en el buscador
 document.getElementById('url-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') openInProxy();
 });
 
-// Cargar al inicio y refrescar cada 90 segundos
 loadMatches();
 setInterval(loadMatches, 90_000);
 </script>
