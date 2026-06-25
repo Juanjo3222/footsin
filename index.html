@@ -65,7 +65,7 @@
 
         .main-container { width: 92%; max-width: 980px; margin-top: 0; }
 
-        /* Contenedor unificado para Video HLS */
+        /* Contenedor unificado para Video o Iframe */
         .player-container {
             width: 100%; display: none; margin: 2.4rem 0 2.8rem; background: #000; border-radius: 2px; overflow: hidden; border: 1px solid var(--line); position: relative; aspect-ratio: 16 / 9;
         }
@@ -162,7 +162,7 @@
             <h1>Budsin<span class="accent">FC</span></h1>
             <span class="edition-tag">Edición en vivo</span>
         </div>
-        <div class="subtitle">cineby.budsin.dev — cartelera de transmisiones</div>
+        <div class="subtitle">streamed.budsin.dev — cartelera de transmisiones</div>
     </header>
 
     <div class="main-container">
@@ -170,6 +170,8 @@
             <button class="close-player-btn" onclick="closeVideoPlayer()">Cerrar</button>
             <!-- Elemento de Vídeo Puro HLS -->
             <video id="live-video" class="player-element" controls autoplay playsinline></video>
+            <!-- Sandbox anti-publicidad e interceptor de redirecciones para iframes dinámicos -->
+            <iframe id="live-iframe" class="player-element" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
         </div>
 
         <div id="agenda-master-container">
@@ -178,14 +180,11 @@
     </div>
 
     <div class="status-bar">
-        <span><span class="dot"></span>Señales limpias encapsuladas sin publicidad externa</span>
+        <span><span class="dot"></span>Señales limpias encapsuladas en sandbox</span>
     </div>
 
     <script>
-        // Cambiado el subdominio de tu API / Worker tal como lo solicitaste
-        const STREAM_BASE = 'https://cineby.budsin.dev';
-        // Mantenemos la URL base original exclusiva para jalar el JSON de partidos e imágenes
-        const BACKEND_AGENDA = 'https://streamed.budsin.dev';
+        const STREAM_BASE = 'https://streamed.budsin.dev';
         let hlsInstance = null; 
 
         // Escudo global anti-popups recurrentes
@@ -198,37 +197,57 @@
             }, true);
         })();
 
-        async function playHlsStream(m3u8Url) {
+        async function openVideoStream(embedUrl, streamNo) {
             const playerZone = document.getElementById('video-player-zone');
             const video = document.getElementById('live-video');
+            const iframe = document.getElementById('live-iframe');
 
             playerZone.style.display = 'block';
             playerZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-            // Limpieza de instancias de reproducción previas
+            // Limpieza previa
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             video.style.display = 'none';
+            iframe.style.display = 'none';
             video.src = '';
+            iframe.src = '';
 
-            // Flujo nativo o manejado por HLS.js
-            video.style.display = 'block';
-            if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = m3u8Url;
-                video.addEventListener('loadedmetadata', () => { video.play().catch(()=>{}); });
-            } else if (Hls.isSupported()) {
-                hlsInstance = new Hls();
-                hlsInstance.loadSource(m3u8Url);
-                hlsInstance.attachMedia(video);
-                hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => { video.play().catch(()=>{}); });
+            // DETECCIÓN INTELIGENTE DE CANALES SEGÚN LOG DE ENTRADAS HAR
+            if (embedUrl.includes('.m3u8')) {
+                // Flujo nativo HLS
+                video.style.display = 'block';
+                if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = embedUrl;
+                    video.addEventListener('loadedmetadata', () => { video.play().catch(()=>{}); });
+                } else if (Hls.isSupported()) {
+                    hlsInstance = new Hls();
+                    hlsInstance.loadSource(embedUrl);
+                    hlsInstance.attachMedia(video);
+                    hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => { video.play().catch(()=>{}); });
+                }
+            } else {
+                // Flujo dinámico a iframe (Evita errores 404 de la API e intercepta el HTML real)
+                iframe.style.display = 'block';
+                
+                // Si la URL apunta a un endpoint de procesamiento interno obsoleto, la reescribimos al GET funcional
+                let targetUrl = embedUrl;
+                if (embedUrl.includes('/api/source/')) {
+                    // Reconstrucción del enlace basado en la ruta /embed/admin/ de la red analizada
+                    targetUrl = embedUrl.replace('/api/source/', '/embed/admin/ppv-ecuador-vs-germany/');
+                }
+                
+                iframe.src = targetUrl;
             }
         }
 
         function closeVideoPlayer() {
             const playerZone = document.getElementById('video-player-zone');
             const video = document.getElementById('live-video');
+            const iframe = document.getElementById('live-iframe');
             
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             video.src = '';
+            iframe.src = '';
             video.load();
             playerZone.style.display = 'none';
         }
@@ -249,8 +268,8 @@
 
         function buildMatchRowHTML(match, isToday, isFeatured) {
             const startTime = new Date(match.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-            const homeBadge = match.teams?.home?.badge ? `${BACKEND_AGENDA}/api/images/badge/${match.teams.home.badge}.webp` : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
-            const awayBadge = match.teams?.away?.badge ? `${BACKEND_AGENDA}/api/images/badge/${match.teams.away.badge}.webp` : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
+            const homeBadge = match.teams?.home?.badge ? `${STREAM_BASE}/api/images/badge/${match.teams.home.badge}.webp` : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
+            const awayBadge = match.teams?.away?.badge ? `${STREAM_BASE}/api/images/badge/${match.teams.away.badge}.webp` : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
             const homeName = match.teams?.home?.name || 'Local';
             const awayName = match.teams?.away?.name || 'Visitante';
 
@@ -284,8 +303,7 @@
         async function renderTimeline() {
             const masterContainer = document.getElementById('agenda-master-container');
             try {
-                // Sigue consultando la agenda central en el backend original
-                const response = await fetch(`${BACKEND_AGENDA}/api/matches/football`);
+                const response = await fetch(`${STREAM_BASE}/api/matches/football`);
                 if (!response.ok) throw new Error("Fallo de comunicación con la API.");
 
                 const matches = await response.json();
@@ -330,10 +348,9 @@
             }
         }
 
-        // Nueva lógica integrada para disparar directamente tu Worker Extractor mediante GET pasándole ID y Opción
         async function loadStreamsForMatch(matchId, sources) {
             const selectorContainer = document.getElementById(`streams-${matchId}`);
-            selectorContainer.innerHTML = `<span class="stream-status">Inyectando bypass de señal…</span>`;
+            selectorContainer.innerHTML = `<span class="stream-status">Escaneando señales…</span>`;
 
             try {
                 if (!sources || sources.length === 0) {
@@ -342,45 +359,23 @@
                 }
 
                 const sourceConfig = sources[0];
+                const res = await fetch(`${STREAM_BASE}/api/stream/${sourceConfig.source}/${sourceConfig.id}`);
+                if (!res.ok) throw new Error();
+                const streams = await res.json();
+
                 selectorContainer.innerHTML = '';
+                if (!streams || streams.length === 0) {
+                    selectorContainer.innerHTML = `<span class="stream-status">Canales fuera de línea.</span>`;
+                    return;
+                }
 
-                // El JSON original suele traer múltiples opciones. Creamos los botones basados en ellas.
-                // Simularemos hasta 3 opciones de stream por si el JSON no detalla la numeración exacta.
-                const opcionesDisponibles = [
-                    { streamNo: "1", label: "Opción 1" },
-                    { streamNo: "2", label: "Opción 2 (HAR)" },
-                    { streamNo: "3", label: "Opción 3" }
-                ];
-
-                opcionesDisponibles.forEach(opcion => {
+                streams.forEach(stream => {
                     const btn = document.createElement('button');
                     btn.className = 'btn-stream';
-                    
-                    // Al hacer click, va directo a tu Worker pasándole los datos exactos que requiere el payload
-                    btn.onclick = async () => {
-                        selectorContainer.innerHTML = `<span class="stream-status">Extrayendo m3u8...</span>`;
-                        try {
-                            const res = await fetch(`${STREAM_BASE}/?id=${sourceConfig.id}&stream=${opcion.streamNo}`);
-                            if (!res.ok) throw new Error();
-                            const data = await res.json();
-                            
-                            if (data && data.url) {
-                                // Ejecuta la reproducción nativa HLS con la url limpia
-                                playHlsStream(data.url);
-                                // Re-renderizar los botones por si el usuario quiere cambiar de opción
-                                loadStreamsForMatch(matchId, sources);
-                            } else {
-                                throw new Error();
-                            }
-                        } catch (err) {
-                            alert("Esta opción de stream está fuera de línea o requiere actualizar el token.");
-                            loadStreamsForMatch(matchId, sources);
-                        }
-                    };
-
+                    btn.onclick = () => { openVideoStream(stream.embedUrl, stream.streamNo); };
                     btn.innerHTML = `
-                        <span>${opcion.label}</span><span class="hd-mark">HD</span>
-                        <span class="lang-tag">Estable</span>
+                        <span>Opción ${stream.streamNo}</span>${stream.hd ? '<span class="hd-mark">HD</span>' : ''}
+                        <span class="lang-tag">${stream.language || 'Español'}</span>
                     `;
                     selectorContainer.appendChild(btn);
                 });
