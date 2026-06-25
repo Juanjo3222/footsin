@@ -340,7 +340,7 @@
     </div>
 
     <div class="status-bar">
-        <span><span class="dot"></span>Vídeo distribuido vía embed.st</span>
+        <span><span class="dot"></span>Vídeo distribuido vía proxy.budsin.dev</span>
     </div>
 
     <script>
@@ -351,9 +351,11 @@
             if (!rawUrl) return '#';
             try {
                 const urlObj = new URL(rawUrl);
-                return EMBED_REPLACE_BASE + urlObj.pathname + urlObj.search;
+                const embedUrl = EMBED_REPLACE_BASE + urlObj.pathname + urlObj.search;
+                return 'https://proxy.budsin.dev/?go=' + encodeURIComponent(embedUrl);
             } catch (e) {
-                return rawUrl.replace(/^https?:\/\/[^\/]+/, EMBED_REPLACE_BASE);
+                const embedUrl = rawUrl.replace(/^https?:\/\/[^\/]+/, EMBED_REPLACE_BASE);
+                return 'https://proxy.budsin.dev/?go=' + encodeURIComponent(embedUrl);
             }
         }
 
@@ -497,7 +499,6 @@
 
                     const isToday = dayName === 'Hoy';
 
-                    // Separar el partido destacado (si hay uno marcado popular) del resto
                     const sorted = [...dayMatches];
                     const featuredIndex = sorted.findIndex(m => m.popular);
                     let featured = null;
