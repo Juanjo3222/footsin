@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
+    <!-- Librería para reproducir transmisiones .m3u8 (HLS) de forma nativa en cualquier navegador -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://games.budsin.dev/classroom-hotkey.js" defer></script>
     <style>
@@ -347,7 +348,6 @@
         const STREAM_BASE = 'https://streamed.budsin.dev';
         let hlsInstance = null; 
 
-        // Modificado: Ahora no inyecta el proxy, solo devuelve la URL limpia recibida desde tu base de datos
         function sanitizeEmbedUrl(rawUrl) {
             return rawUrl || '#';
         }
@@ -395,15 +395,21 @@
 
             let finalM3u8Url = embedUrl;
 
-            // ANALIZADOR DE HAR: Si el link es de embed.st, extraemos el .m3u8 directamente de su endpoint
+            // INTERCEPTOR PARA EMBED.ST: Extrae slugs complejos o IDs tradicionales
             if (embedUrl.includes('embed.st')) {
                 try {
-                    // Extraer el ID único del video de la URL (ej: /e/xyz123 -> xyz123)
-                    const parts = embedUrl.split('/e/');
-                    if (parts.length > 1) {
-                        const videoId = parts[1].split('?')[0];
-                        
-                        // Hacemos la llamada exacta que hace el script de embed.st en el HAR
+                    let videoId = '';
+                    
+                    if (embedUrl.includes('/embed/')) {
+                        // Extrae la ruta extendida (/embed/admin/ppv-ecuador-vs-germany/9)
+                        videoId = embedUrl.split('/embed/')[1]?.split('?')[0];
+                    } else if (embedUrl.includes('/e/')) {
+                        // Respaldo tradicional por si hay urls clásicas en la db
+                        videoId = embedUrl.split('/e/')[1]?.split('?')[0];
+                    }
+
+                    if (videoId) {
+                        // Llamada limpia directo al endpoint JSON del stream en crudo
                         const res = await fetch(`https://embed.st/api/source/${videoId}`, {
                             method: 'POST',
                             headers: {
@@ -417,16 +423,16 @@
 
                         const json = await res.json();
                         if (json && json.url) {
-                            finalM3u8Url = json.url; // Cambiamos el link de la web por el .m3u8 directo
+                            finalM3u8Url = json.url; 
                             console.log("Stream HLS obtenido directo del origen:", finalM3u8Url);
                         }
                     }
                 } catch (err) {
-                    console.error("Error al interceptar el .m3u8 original via fetch:", err);
+                    console.error("Error al interceptar el .m3u8 via backend fetch:", err);
                 }
             }
 
-            // Inicialización del reproductor con el archivo .m3u8 final
+            // Inicialización de flujos de reproducción
             if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = finalM3u8Url;
                 video.addEventListener('loadedmetadata', () => {
@@ -625,7 +631,6 @@
                     btn.className = 'btn-stream';
 
                     const personalEmbedUrl = sanitizeEmbedUrl(stream.embedUrl);
-                    // Modificado: Ahora pasamos también el streamNo para mapearlo correctamente en la API de origen
                     btn.onclick = () => { openVideoStream(personalEmbedUrl, stream.streamNo); };
 
                     const hdLabel = stream.hd ? `<span class="hd-mark">HD</span>` : '';
