@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
+    <!-- Librería para reproducir transmisiones .m3u8 (HLS) de forma nativa en cualquier navegador -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://games.budsin.dev/classroom-hotkey.js" defer></script>
     <style>
         :root {
@@ -97,7 +99,6 @@
             position: relative;
             aspect-ratio: 16 / 9;
         }
-        .player-container iframe { width: 100%; height: 100%; border: none; }
         .close-player-btn {
             position: absolute; top: 10px; right: 10px;
             background: rgba(14,13,11,0.85);
@@ -331,7 +332,8 @@
     <div class="main-container">
         <div id="video-player-zone" class="player-container">
             <button class="close-player-btn" onclick="closeVideoPlayer()">Cerrar</button>
-            <iframe id="live-iframe" src="" allowfullscreen></iframe>
+            <!-- Modificado: Se reemplaza el iframe por una etiqueta de video nativa compatible con HLS -->
+            <video id="live-video" controls autoplay playsinline style="width: 100%; height: 100%; object-fit: contain;"></video>
         </div>
 
         <div id="agenda-master-container">
@@ -346,6 +348,7 @@
     <script>
         const STREAM_BASE = 'https://streamed.budsin.dev';
         const EMBED_REPLACE_BASE = 'https://embed.st';
+        let hlsInstance = null; // Instancia global para controlar el flujo de Hls.js
 
         function sanitizeEmbedUrl(rawUrl) {
             if (!rawUrl) return '#';
@@ -374,8 +377,9 @@
                 setTimeout(() => { window.open = originalOpen; }, 800);
             }, true);
 
+            // Modificado para ajustarse al reproductor nativo
             setInterval(function() {
-                if (document.activeElement === document.getElementById('live-iframe')) {
+                if (document.activeElement === document.getElementById('live-video')) {
                     window.focus();
                 }
             }, 400);
@@ -386,22 +390,71 @@
         })();
 
         // ==========================================
-        // CONTROLADORES DEL REPRODUCTOR
+        // CONTROLADORES DEL REPRODUCTOR NATIVO HLS
         // ==========================================
         function openVideoStream(url) {
             const playerZone = document.getElementById('video-player-zone');
-            const iframe = document.getElementById('live-iframe');
+            const video = document.getElementById('live-video');
 
-            iframe.src = url;
             playerZone.style.display = 'block';
-
             playerZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            // Destruir flujos previos activos antes de inicializar uno nuevo
+            if (hlsInstance) {
+                hlsInstance.destroy();
+                hlsInstance = null;
+            }
+
+            // Caso 1: Soporte HLS Nativo integrado (Safari, iOS, Mac)
+            if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url;
+                video.addEventListener('loadedmetadata', () => {
+                    video.play().catch(err => console.log("Autoplay bloqueado:", err));
+                });
+            } 
+            // Caso 2: Navegadores estándar usando la librería externa Hls.js
+            else if (Hls.isSupported()) {
+                hlsInstance = new Hls();
+                hlsInstance.loadSource(url);
+                hlsInstance.attachMedia(video);
+                
+                hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+                    video.play().catch(err => console.log("Autoplay bloqueado:", err));
+                });
+
+                hlsInstance.on(Hls.Events.ERROR, function (event, data) {
+                    if (data.fatal) {
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                console.warn("Error de red en el stream, intentando reconectar...");
+                                hlsInstance.startLoad();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                console.warn("Error de decodificación, intentando recuperar el búfer...");
+                                hlsInstance.recoverMediaError();
+                                break;
+                            default:
+                                closeVideoPlayer();
+                                break;
+                        }
+                    }
+                });
+            } else {
+                alert("Este navegador no es compatible con el sistema de retransmisión.");
+            }
         }
 
         function closeVideoPlayer() {
             const playerZone = document.getElementById('video-player-zone');
-            const iframe = document.getElementById('live-iframe');
-            iframe.src = '';
+            const video = document.getElementById('live-video');
+            
+            if (hlsInstance) {
+                hlsInstance.destroy();
+                hlsInstance = null;
+            }
+            
+            video.src = '';
+            video.load(); // Corta el búfer actual en memoria de forma limpia
             playerZone.style.display = 'none';
         }
 
