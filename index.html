@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    <!-- Librería para reproducir transmisiones .m3u8 (HLS) de forma nativa en cualquier navegador -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://games.budsin.dev/classroom-hotkey.js" defer></script>
     <style>
@@ -395,44 +394,56 @@
 
             let finalM3u8Url = embedUrl;
 
-            // INTERCEPTOR PARA EMBED.ST: Extrae slugs complejos o IDs tradicionales
-            if (embedUrl.includes('embed.st')) {
+            // INTERCEPTOR OPTIMIZADO PARA APIS DE STREAMING (embed.st / streamed.pk)
+            if (embedUrl.includes('embed.st') || embedUrl.includes('streamed.pk')) {
                 try {
-                    let videoId = '';
+                    let source = '';
+                    let matchId = '';
                     
+                    // Extraer los componentes limpios desde la estructura de la URL del iframe
+                    // Ejemplo esperado: https://embed.st/embed/admin/ppv-ecuador-vs-germany/9
                     if (embedUrl.includes('/embed/')) {
-                        // Extrae la ruta extendida (/embed/admin/ppv-ecuador-vs-germany/9)
-                        videoId = embedUrl.split('/embed/')[1]?.split('?')[0];
-                    } else if (embedUrl.includes('/e/')) {
-                        // Respaldo tradicional por si hay urls clásicas en la db
-                        videoId = embedUrl.split('/e/')[1]?.split('?')[0];
+                        const pathParts = embedUrl.split('/embed/')[1]?.split('?')[0].split('/');
+                        if (pathParts && pathParts.length >= 2) {
+                            source = pathParts[0];   // "admin"
+                            matchId = pathParts[1];  // "ppv-ecuador-vs-germany"
+                        }
                     }
 
-                    if (videoId) {
-                        // Llamada limpia directo al endpoint JSON del stream en crudo
-                        const res = await fetch(`https://embed.st/api/source/${videoId}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                id: videoId,
-                                streamNo: String(streamNo || 1)
-                            })
-                        });
-
-                        const json = await res.json();
-                        if (json && json.url) {
-                            finalM3u8Url = json.url; 
-                            console.log("Stream HLS obtenido directo del origen:", finalM3u8Url);
+                    if (source && matchId) {
+                        // Llamada limpia directo al JSON del stream evitando errores de segmentación por números de canal al final
+                        const res = await fetch(`https://streamed.pk/api/stream/${source}/${matchId}`);
+                        if (res.ok) {
+                            const streams = await res.json();
+                            // Buscamos dinámicamente el stream que corresponda al streamNo seleccionado en el botón
+                            const targetStream = streams.find(s => s.streamNo === parseInt(streamNo)) || streams[0];
+                            
+                            if (targetStream && targetStream.embedUrl) {
+                                // Si devuelve directamente un .m3u8, lo usamos, de lo contrario consultamos su endpoint nativo source
+                                if (targetStream.embedUrl.includes('.m3u8')) {
+                                    finalM3u8Url = targetStream.embedUrl;
+                                } else {
+                                    // Fallback tradicional POST /api/source en caso de requerir token hash
+                                    let videoId = targetStream.embedUrl.split('/embed/')[1]?.split('?')[0] || targetStream.embedUrl.split('/e/')[1]?.split('?')[0];
+                                    if (videoId) {
+                                        const sourceRes = await fetch(`https://embed.st/api/source/${videoId}`, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ id: videoId, streamNo: String(streamNo || 1) })
+                                        });
+                                        const sourceJson = await sourceRes.json();
+                                        if (sourceJson && sourceJson.url) finalM3u8Url = sourceJson.url;
+                                    }
+                                }
+                            }
                         }
                     }
                 } catch (err) {
-                    console.error("Error al interceptar el .m3u8 via backend fetch:", err);
+                    console.error("Error al procesar la API limpia de flujos HLS:", err);
                 }
             }
 
-            // Inicialización de flujos de reproducción
+            // Inicialización de flujos de reproducción nativos / Hls.js
             if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = finalM3u8Url;
                 video.addEventListener('loadedmetadata', () => {
