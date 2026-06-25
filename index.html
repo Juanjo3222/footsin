@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    <!-- Librería para reproducir transmisiones .m3u8 (HLS) de forma nativa en cualquier navegador -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://games.budsin.dev/classroom-hotkey.js" defer></script>
     <style>
@@ -332,7 +331,6 @@
     <div class="main-container">
         <div id="video-player-zone" class="player-container">
             <button class="close-player-btn" onclick="closeVideoPlayer()">Cerrar</button>
-            <!-- Modificado: Se reemplaza el iframe por una etiqueta de video nativa compatible con HLS -->
             <video id="live-video" controls autoplay playsinline style="width: 100%; height: 100%; object-fit: contain;"></video>
         </div>
 
@@ -342,24 +340,16 @@
     </div>
 
     <div class="status-bar">
-        <span><span class="dot"></span>Vídeo distribuido vía proxy.budsin.dev</span>
+        <span><span class="dot"></span>Vídeo directo desde el origen HLS</span>
     </div>
 
     <script>
         const STREAM_BASE = 'https://streamed.budsin.dev';
-        const EMBED_REPLACE_BASE = 'https://embed.st';
-        let hlsInstance = null; // Instancia global para controlar el flujo de Hls.js
+        let hlsInstance = null; 
 
+        // Modificado: Ahora no inyecta el proxy, solo devuelve la URL limpia recibida desde tu base de datos
         function sanitizeEmbedUrl(rawUrl) {
-            if (!rawUrl) return '#';
-            try {
-                const urlObj = new URL(rawUrl);
-                const embedUrl = EMBED_REPLACE_BASE + urlObj.pathname + urlObj.search;
-                return 'https://proxy.budsin.dev/?go=' + encodeURIComponent(embedUrl);
-            } catch (e) {
-                const embedUrl = rawUrl.replace(/^https?:\/\/[^\/]+/, EMBED_REPLACE_BASE);
-                return 'https://proxy.budsin.dev/?go=' + encodeURIComponent(embedUrl);
-            }
+            return rawUrl || '#';
         }
 
         // ==========================================
@@ -377,7 +367,6 @@
                 setTimeout(() => { window.open = originalOpen; }, 800);
             }, true);
 
-            // Modificado para ajustarse al reproductor nativo
             setInterval(function() {
                 if (document.activeElement === document.getElementById('live-video')) {
                     window.focus();
@@ -390,47 +379,76 @@
         })();
 
         // ==========================================
-        // CONTROLADORES DEL REPRODUCTOR NATIVO HLS
+        // CONTROLADORES DEL REPRODUCTOR DIRECTO (.m3u8)
         // ==========================================
-        function openVideoStream(url) {
+        async function openVideoStream(embedUrl, streamNo) {
             const playerZone = document.getElementById('video-player-zone');
             const video = document.getElementById('live-video');
 
             playerZone.style.display = 'block';
             playerZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-            // Destruir flujos previos activos antes de inicializar uno nuevo
             if (hlsInstance) {
                 hlsInstance.destroy();
                 hlsInstance = null;
             }
 
-            // Caso 1: Soporte HLS Nativo integrado (Safari, iOS, Mac)
+            let finalM3u8Url = embedUrl;
+
+            // ANALIZADOR DE HAR: Si el link es de embed.st, extraemos el .m3u8 directamente de su endpoint
+            if (embedUrl.includes('embed.st')) {
+                try {
+                    // Extraer el ID único del video de la URL (ej: /e/xyz123 -> xyz123)
+                    const parts = embedUrl.split('/e/');
+                    if (parts.length > 1) {
+                        const videoId = parts[1].split('?')[0];
+                        
+                        // Hacemos la llamada exacta que hace el script de embed.st en el HAR
+                        const res = await fetch(`https://embed.st/api/source/${videoId}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                id: videoId,
+                                streamNo: String(streamNo || 1)
+                            })
+                        });
+
+                        const json = await res.json();
+                        if (json && json.url) {
+                            finalM3u8Url = json.url; // Cambiamos el link de la web por el .m3u8 directo
+                            console.log("Stream HLS obtenido directo del origen:", finalM3u8Url);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error al interceptar el .m3u8 original via fetch:", err);
+                }
+            }
+
+            // Inicialización del reproductor con el archivo .m3u8 final
             if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = url;
+                video.src = finalM3u8Url;
                 video.addEventListener('loadedmetadata', () => {
-                    video.play().catch(err => console.log("Autoplay bloqueado:", err));
+                    video.play().catch(err => console.log("Autoplay nativo bloqueado:", err));
                 });
             } 
-            // Caso 2: Navegadores estándar usando la librería externa Hls.js
             else if (Hls.isSupported()) {
                 hlsInstance = new Hls();
-                hlsInstance.loadSource(url);
+                hlsInstance.loadSource(finalM3u8Url);
                 hlsInstance.attachMedia(video);
                 
                 hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-                    video.play().catch(err => console.log("Autoplay bloqueado:", err));
+                    video.play().catch(err => console.log("Autoplay Hls.js bloqueado:", err));
                 });
 
                 hlsInstance.on(Hls.Events.ERROR, function (event, data) {
                     if (data.fatal) {
                         switch (data.type) {
                             case Hls.ErrorTypes.NETWORK_ERROR:
-                                console.warn("Error de red en el stream, intentando reconectar...");
                                 hlsInstance.startLoad();
                                 break;
                             case Hls.ErrorTypes.MEDIA_ERROR:
-                                console.warn("Error de decodificación, intentando recuperar el búfer...");
                                 hlsInstance.recoverMediaError();
                                 break;
                             default:
@@ -440,7 +458,7 @@
                     }
                 });
             } else {
-                alert("Este navegador no es compatible con el sistema de retransmisión.");
+                alert("Navegador no compatible con transmisiones HLS directas.");
             }
         }
 
@@ -454,7 +472,7 @@
             }
             
             video.src = '';
-            video.load(); // Corta el búfer actual en memoria de forma limpia
+            video.load(); 
             playerZone.style.display = 'none';
         }
 
@@ -607,7 +625,8 @@
                     btn.className = 'btn-stream';
 
                     const personalEmbedUrl = sanitizeEmbedUrl(stream.embedUrl);
-                    btn.onclick = () => { openVideoStream(personalEmbedUrl); };
+                    // Modificado: Ahora pasamos también el streamNo para mapearlo correctamente en la API de origen
+                    btn.onclick = () => { openVideoStream(personalEmbedUrl, stream.streamNo); };
 
                     const hdLabel = stream.hd ? `<span class="hd-mark">HD</span>` : '';
 
