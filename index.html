@@ -168,9 +168,7 @@
     <div class="main-container">
         <div id="video-player-zone" class="player-container">
             <button class="close-player-btn" onclick="closeVideoPlayer()">Cerrar</button>
-            <!-- Elemento de Vídeo Puro HLS -->
             <video id="live-video" class="player-element" controls autoplay playsinline></video>
-            <!-- Sandbox anti-publicidad e interceptor de redirecciones para iframes dinámicos -->
             <iframe id="live-iframe" class="player-element" allow="fullscreen"></iframe>
         </div>
 
@@ -186,6 +184,9 @@
     <script>
         const STREAM_BASE = 'https://streamed.budsin.dev';
         let hlsInstance = null; 
+
+        // DETECCIÓN DE CHROMEBOOK (CrOS)
+        const isChromebook = /\bCrOS\b/.test(navigator.userAgent);
 
         // Escudo global anti-popups recurrentes
         (function() {
@@ -364,12 +365,16 @@
                 const streams = await res.json();
 
                 selectorContainer.innerHTML = '';
-                if (!streams || streams.length === 0) {
-                    selectorContainer.innerHTML = `<span class="stream-status">Canales fuera de línea.</span>`;
-                    return;
-                }
+                let visibleStreamsCount = 0;
 
                 streams.forEach(stream => {
+                    // SI ES CHROMEBOOK Y LA SEÑAL ES HD, NO SE RENDERIZA EL BOTÓN
+                    if (isChromebook && stream.hd) {
+                        return; 
+                    }
+
+                    visibleStreamsCount++;
+
                     const btn = document.createElement('button');
                     btn.className = 'btn-stream';
                     btn.onclick = () => { openVideoStream(stream.embedUrl, stream.streamNo); };
@@ -379,6 +384,11 @@
                     `;
                     selectorContainer.appendChild(btn);
                 });
+
+                if (visibleStreamsCount === 0) {
+                    selectorContainer.innerHTML = `<span class="stream-status">Canales fuera de línea o incompatibles.</span>`;
+                }
+
             } catch (e) {
                 selectorContainer.innerHTML = `<span class="stream-status" style="color: var(--card-red);">Error al enlazar señales remotas.</span>`;
             }
