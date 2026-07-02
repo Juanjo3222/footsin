@@ -123,9 +123,11 @@
         .stream-selectors { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: flex-end; max-width: 280px; }
 
         .btn-open-streams {
-            background: transparent; color: var(--pitch); border: 1px solid var(--pitch-dim); padding: 0.5rem 0.85rem; border-radius: 2px; font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(74, 107, 74, 0.12); color: var(--pitch); border: 1px solid var(--pitch); padding: 0.5rem 0.95rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.8px; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; font-weight: 600;
         }
-        .btn-open-streams:hover { background: var(--pitch); color: var(--bg-main); border-color: var(--pitch); }
+        .btn-open-streams:hover { background: var(--pitch); color: var(--bg-main); border-color: var(--pitch); transform: translateY(-1px); box-shadow: 0 2px 10px rgba(74, 107, 74, 0.35); }
+        .btn-open-streams:active { transform: scale(0.96); }
 
         .btn-stream {
             background: transparent; color: var(--paper); border: 1px solid var(--line); padding: 0.4rem 0.65rem; border-radius: 2px; font-family: var(--font-mono); font-size: 0.7rem; cursor: pointer; transition: all 0.15s ease; display: inline-flex; align-items: center; gap: 6px;
@@ -144,12 +146,287 @@
         }
         .status-bar .dot { width: 6px; height: 6px; background-color: var(--pitch); border-radius: 50%; display: inline-block; margin-right: 6px; }
 
+        /* Overlay de código de invitación */
+        #invite-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: var(--bg-main);
+            background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 36px);
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column;
+            opacity: 1; visibility: visible;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+        #invite-overlay.hidden {
+            opacity: 0; visibility: hidden; pointer-events: none;
+        }
+
+        .invite-box {
+            text-align: center; padding: 2.5rem; max-width: 400px; width: 90%;
+        }
+        .invite-brand {
+            font-family: var(--font-display); font-weight: 800; font-size: 3.6rem;
+            color: var(--paper); text-transform: uppercase; letter-spacing: 1px; line-height: 1; margin-bottom: 0.3rem;
+        }
+        .invite-brand .accent { color: var(--card-yellow); }
+        .invite-sub {
+            font-family: var(--font-mono); font-size: 0.8rem; color: var(--paper-dim);
+            margin: 0 0 2rem; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .invite-input {
+            display: block; width: 100%; padding: 0.85rem 1rem; margin-bottom: 0.8rem;
+            background: var(--bg-card); border: 1px solid var(--line); border-radius: 2px;
+            color: var(--paper); font-family: var(--font-mono); font-size: 1.1rem;
+            text-align: center; letter-spacing: 3px; text-transform: uppercase;
+            outline: none; transition: border-color 0.15s ease;
+        }
+        .invite-input:focus { border-color: var(--card-yellow); }
+        .invite-input::placeholder { color: var(--paper-dim); letter-spacing: 1px; font-size: 0.85rem; }
+        .invite-error {
+            font-family: var(--font-mono); font-size: 0.75rem; color: var(--card-red);
+            min-height: 1.4rem; margin-bottom: 0.6rem;
+        }
+        .invite-btn {
+            width: 100%; padding: 0.9rem;
+            background: var(--pitch); color: var(--bg-main); border: none; border-radius: 2px;
+            font-family: var(--font-display); font-weight: 700; font-size: 1.1rem;
+            text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
+            transition: opacity 0.15s ease;
+        }
+        .invite-btn:hover { opacity: 0.85; }
+        .invite-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .invite-remember {
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            margin-top: 1rem; font-family: var(--font-mono); font-size: 0.75rem;
+            color: var(--paper-dim); cursor: pointer;
+        }
+        .invite-remember input[type="checkbox"] {
+            appearance: none; width: 16px; height: 16px; margin: 0;
+            background: var(--bg-card); border: 1px solid var(--line); border-radius: 2px;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+            transition: all 0.15s ease;
+        }
+        .invite-remember input[type="checkbox"]:checked {
+            background: var(--pitch); border-color: var(--pitch);
+        }
+        .invite-remember input[type="checkbox"]:checked::after {
+            content: ''; width: 5px; height: 9px; border: solid var(--bg-main);
+            border-width: 0 2px 2px 0; transform: rotate(45deg); margin-top: -2px;
+        }
+
+        /* ─── Filter tabs ─── */
+        .filter-tabs {
+            display: flex;
+            gap: 0;
+            margin: 1.8rem 0 0;
+            border-bottom: 1px solid var(--line);
+            width: 100%;
+        }
+        .filter-tab {
+            background: none;
+            border: none;
+            padding: 0.65rem 1.2rem;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--paper-dim);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.15s ease, border-color 0.15s ease;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+        .filter-tab:hover {
+            color: var(--paper);
+        }
+        .filter-tab.active {
+            color: var(--card-yellow);
+            border-bottom-color: var(--card-yellow);
+        }
+
         @media (max-width: 640px) {
             h1 { font-size: 2.2rem; }
             .masthead-row { flex-direction: column; gap: 0.4rem; }
             .match-row, .featured-row { grid-template-columns: 1fr; gap: 0.6rem; text-align: left; }
             .match-time-block { text-align: left; }
             .stream-selectors { justify-content: flex-start; max-width: none; }
+            .back-to-top { bottom: 1rem; right: 1rem; width: 40px; height: 40px; font-size: 1.1rem; }
+            .filter-tabs { overflow-x: auto; }
+            .filter-tab { padding: 0.6rem 0.9rem; font-size: 0.72rem; }
+        }
+
+        /* ─── Animations ─── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%      { transform: translateX(-6px); }
+            40%      { transform: translateX(6px); }
+            60%      { transform: translateX(-4px); }
+            80%      { transform: translateX(4px); }
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 0.3; }
+            50%      { opacity: 1; }
+        }
+
+        .anim-fade-in-up {
+            opacity: 0;
+            animation: fadeInUp 0.45s ease forwards;
+        }
+
+        .invite-input.error {
+            border-color: var(--card-red) !important;
+            animation: shake 0.4s ease;
+        }
+
+        .spinner-icon {
+            display: inline-block;
+            width: 16px; height: 16px;
+            border: 2px solid var(--bg-main);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+        }
+
+        .btn-stream, .btn-open-streams {
+            will-change: transform;
+        }
+        .btn-stream:active, .btn-open-streams:active {
+            transform: scale(0.95);
+        }
+
+        /* Back to top */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem; right: 1.5rem;
+            width: 44px; height: 44px;
+            background: var(--bg-card-raised);
+            border: 1px solid var(--line);
+            color: var(--paper-dim);
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease, background 0.2s ease, border-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            z-index: 100;
+            font-family: var(--font-mono);
+            line-height: 1;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            background: var(--pitch);
+            border-color: var(--pitch);
+            color: var(--bg-main);
+        }
+
+        /* Player container transition */
+        .player-container {
+            transition: opacity 0.25s ease;
+        }
+
+        /* ─── Finished match state ─── */
+        .match-row.is-finished {
+            grid-template-columns: 64px 1fr;
+            border-left-color: var(--paper-dim);
+            opacity: 0.75;
+            cursor: default;
+        }
+        .match-row.is-finished:hover {
+            border-left-color: var(--paper-dim);
+            background: var(--bg-card);
+        }
+
+        .match-row.is-finished.is-extra {
+            border-left-color: var(--card-yellow);
+        }
+        .match-row.is-finished.is-extra:hover {
+            border-left-color: var(--card-yellow);
+        }
+
+        .finished-label {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            color: var(--paper-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-top: 4px;
+        }
+
+        .score-sub {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--card-yellow);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .score-display {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.15rem;
+        }
+        .score-display .flag-img {
+            width: 22px;
+            height: 16px;
+            object-fit: contain;
+            border-radius: 1px;
+            display: block;
+        }
+        .score-display .score-num {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--paper);
+            line-height: 1;
+            min-width: 1.2rem;
+            text-align: center;
+        }
+        .score-display .score-sep {
+            color: var(--paper-dim);
+            font-size: 1rem;
+            font-weight: 400;
+            margin: 0 0.1rem;
+        }
+
+        .match-meta {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--paper-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .live-indicator {
+            display: block;
+            font-size: 0.8rem;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+
+        /* Stream status loading indicator */
+        .stream-status.loading::after {
+            content: '';
+            display: inline-block;
+            width: 4px; height: 4px;
+            margin-left: 6px;
+            background: var(--card-yellow);
+            border-radius: 50%;
+            animation: pulse-dot 1s ease-in-out infinite;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -158,6 +435,19 @@
     <script>
         if (window.top !== window.self) { window.top.location = window.self.location; }
     </script>
+
+    <div id="invite-overlay">
+        <div class="invite-box">
+            <div class="invite-brand">Budsin<span class="accent">FC</span></div>
+            <p class="invite-sub">Código de invitación</p>
+            <input type="text" id="invite-input" class="invite-input" placeholder="Ingresa tu código" autocomplete="off" spellcheck="false" maxlength="20">
+            <div id="invite-error" class="invite-error"></div>
+            <button id="invite-btn" class="invite-btn">Ingresar</button>
+            <label class="invite-remember">
+                <input type="checkbox" id="invite-remember"> Recordar por 7 días
+            </label>
+        </div>
+    </div>
 
     <header>
         <div class="masthead-row">
@@ -174,6 +464,12 @@
             <iframe id="live-iframe" class="player-element" allow="fullscreen"></iframe>
         </div>
 
+        <div class="filter-tabs" id="filter-tabs">
+            <button class="filter-tab" data-filter="past">Anteriores</button>
+            <button class="filter-tab active" data-filter="today">Hoy</button>
+            <button class="filter-tab" data-filter="upcoming">Próximos</button>
+        </div>
+
         <div id="agenda-master-container">
             <div class="loading">Sincronizando agenda y señales disponibles…</div>
         </div>
@@ -183,9 +479,106 @@
         <span><span class="dot"></span>Señales limpias encapsuladas en sandbox</span>
     </div>
 
+    <button id="back-to-top" class="back-to-top" onclick="scrollToTop()" aria-label="Volver arriba">↑</button>
+
     <script>
         const STREAM_BASE = 'https://streamed.budsin.dev';
-        let hlsInstance = null; 
+        let hlsInstance = null;
+
+        let currentFilter = 'today';
+        let renderGeneration = 0;
+
+        // ─── ZAFRONIX WC API ───
+        const ZAFRONIX_BASE = 'https://api.zafronix.com/fifa/worldcup/v1';
+        const ZAFRONIX_KEY = 'zwc_free_77913a9210bd70d352f7d673';
+        let wcMatchesCache = null;
+
+        const NAME_ALIASES = {
+            'south korea': 'korea republic',
+            'czech republic': 'czechia',
+            'ivory coast': "cote d ivoire",
+            'cape verde': 'cabo verde',
+            'iran': 'ir iran',
+            'congo dr': 'dr congo',
+            'democratic republic of the congo': 'dr congo',
+            'turkey': 'turkiye',
+            'united states': 'usa',
+            'united states of america': 'usa'
+        };
+
+        const COUNTRY_FLAGS = {
+            'mexico': 'mx', 'south africa': 'za', 'korea republic': 'kr', 'czechia': 'cz',
+            'canada': 'ca', 'bosnia herzegovina': 'ba', 'usa': 'us', 'paraguay': 'py',
+            'haiti': 'ht', 'scotland': 'gb', 'australia': 'au', 'turkiye': 'tr',
+            'brazil': 'br', 'morocco': 'ma', 'qatar': 'qa', 'switzerland': 'ch',
+            'cote d ivoire': 'ci', 'ecuador': 'ec', 'germany': 'de',
+            'curacao': 'cw', 'netherlands': 'nl', 'japan': 'jp', 'sweden': 'se',
+            'tunisia': 'tn', 'saudi arabia': 'sa', 'uruguay': 'uy', 'spain': 'es',
+            'cabo verde': 'cv', 'ir iran': 'ir',
+            'new zealand': 'nz', 'belgium': 'be', 'egypt': 'eg', 'france': 'fr',
+            'senegal': 'sn', 'iraq': 'iq', 'norway': 'no', 'argentina': 'ar',
+            'algeria': 'dz', 'austria': 'at', 'jordan': 'jo', 'ghana': 'gh',
+            'panama': 'pa', 'england': 'gb', 'croatia': 'hr', 'portugal': 'pt',
+            'dr congo': 'cd', 'uzbekistan': 'uz', 'colombia': 'co'
+        };
+
+        function normalizeName(name) {
+            if (!name) return '';
+            let n = name.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/['-–—]/g, ' ')
+                .replace(/\band\b/g, ' ')
+                .replace(/&/g, ' ')
+                .replace(/\s+/g, ' ').trim();
+            return NAME_ALIASES[n] || n;
+        }
+
+        function getTeamKey(home, away) {
+            return `${normalizeName(home)}||${normalizeName(away)}`;
+        }
+
+        function getFlagUrl(teamName) {
+            const code = COUNTRY_FLAGS[normalizeName(teamName)];
+            return code ? `https://flagcdn.com/24x18/${code}.png` : null;
+        }
+
+        async function fetchWorldCupMatches() {
+            if (wcMatchesCache) return wcMatchesCache;
+            try {
+                const res = await fetch(`${ZAFRONIX_BASE}/matches?year=2026`, {
+                    headers: { 'X-API-Key': ZAFRONIX_KEY }
+                });
+                if (!res.ok) return [];
+                const data = await res.json();
+                wcMatchesCache = data.data || [];
+                return wcMatchesCache;
+            } catch (e) {
+                console.error('Zafronix error:', e);
+                return [];
+            }
+        }
+
+        function findWcMatch(wcMatches, homeName, awayName) {
+            const targetKey = getTeamKey(homeName, awayName);
+            const reversedKey = getTeamKey(awayName, homeName);
+            return wcMatches.find(m =>
+                getTeamKey(m.homeTeam, m.awayTeam) === targetKey ||
+                getTeamKey(m.homeTeam, m.awayTeam) === reversedKey
+            );
+        }
+
+        function buildStageLabel(stage) {
+            if (!stage) return '';
+            const labels = {
+                'group_a': 'Grupo A', 'group_b': 'Grupo B', 'group_c': 'Grupo C',
+                'group_d': 'Grupo D', 'group_e': 'Grupo E', 'group_f': 'Grupo F',
+                'group_g': 'Grupo G', 'group_h': 'Grupo H', 'group_i': 'Grupo I',
+                'group_j': 'Grupo J', 'group_k': 'Grupo K', 'group_l': 'Grupo L',
+                'round_of_32': 'R32', 'round_of_16': 'R16',
+                'quarter_final': 'Cuartos', 'semi_final': 'Semifinal',
+                'third_place': '3er Puesto', 'final': 'Final'
+            };
+            return labels[stage] || stage.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        }
 
         // DETECCIÓN DE CHROMEBOOK (CrOS)
         const isChromebook = /\bCrOS\b/.test(navigator.userAgent);
@@ -206,6 +599,8 @@
             const iframe = document.getElementById('live-iframe');
 
             playerZone.style.display = 'block';
+            playerZone.style.opacity = '0';
+            requestAnimationFrame(() => { playerZone.style.opacity = '1'; });
             playerZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             // Limpieza previa
@@ -249,17 +644,30 @@
             const iframe = document.getElementById('live-iframe');
             
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-            video.src = '';
-            iframe.src = '';
-            video.load();
-            playerZone.style.display = 'none';
+            playerZone.style.opacity = '0';
+            setTimeout(() => {
+                video.src = '';
+                iframe.src = '';
+                video.load();
+                playerZone.style.display = 'none';
+            }, 250);
+        }
+
+        function getTimeUntilMatch(timestamp) {
+            const now = Date.now();
+            const diff = new Date(timestamp).getTime() - now;
+            if (diff < 0 || diff > 6 * 60 * 60 * 1000) return '';
+            const hours = Math.floor(diff / (60 * 60 * 1000));
+            const mins = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+            if (hours > 0) return `En ${hours}h ${mins}m`;
+            return `En ${mins}m`;
         }
 
         function getRelativeDayName(timestamp) {
             const matchDate = new Date(timestamp);
-            const today = new Date();
-            const matchDay = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate()).getTime();
-            const todayDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+            const now = new Date();
+            const matchDay = Date.UTC(matchDate.getUTCFullYear(), matchDate.getUTCMonth(), matchDate.getUTCDate());
+            const todayDay = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
             const oneDay = 24 * 60 * 60 * 1000;
             const diff = matchDay - todayDay;
 
@@ -270,19 +678,70 @@
         }
 
         function buildMatchRowHTML(match, isToday, isFeatured) {
-            const startTime = new Date(match.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-            const homeBadge = match.teams?.home?.badge ? `${STREAM_BASE}/api/images/badge/${match.teams.home.badge}.webp` : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
-            const awayBadge = match.teams?.away?.badge ? `${STREAM_BASE}/api/images/badge/${match.teams.away.badge}.webp` : 'https://img.icons8.com/ios-filled/50/ffffff/football2.png';
             const homeName = match.teams?.home?.name || 'Local';
             const awayName = match.teams?.away?.name || 'Visitante';
+            const isLive = ['halftime', 'in_play', 'live', '1st_half', '2nd_half'].includes(match.wcStatus);
 
-            const rowClass = isFeatured ? `featured-row ${isToday ? 'is-live' : ''}` : `match-row ${isToday ? 'is-live' : ''}`;
+            // ─── FINISHED ───
+            if (match.wcStatus === 'finished') {
+                const homeFlag = getFlagUrl(homeName);
+                const awayFlag = getFlagUrl(awayName);
+                const stage = buildStageLabel(match.wcStage);
+                const location = match.wcStadium ? match.wcStadium : '';
+
+                const hasPenalties = match.wcPenalties && (match.wcPenalties.home != null || match.wcPenalties.away != null);
+                const hasExtra = match.wcExtraTime;
+
+                let penaltyStr = '';
+                if (hasPenalties) {
+                    const ph = match.wcPenalties.home;
+                    const pa = match.wcPenalties.away;
+                    penaltyStr = `<span class="score-sub"> (${ph}–${pa} p.)</span>`;
+                }
+
+                return `
+                    <div class="anim-fade-in-up match-row is-finished${hasExtra ? ' is-extra' : ''}">
+                        <div class="match-time-block">
+                            <span class="finished-label">Finalizado${hasPenalties ? ' (p.)' : hasExtra ? ' (TE)' : ''}</span>
+                        </div>
+                        <div class="match-info">
+                            <div class="score-display">
+                                ${homeFlag ? `<img src="${homeFlag}" class="flag-img" alt="">` : ''}
+                                <span class="score-num">${match.wcHomeScore}</span>
+                                <span class="score-sep">–</span>
+                                <span class="score-num">${match.wcAwayScore}</span>
+                                ${penaltyStr}
+                                ${awayFlag ? `<img src="${awayFlag}" class="flag-img" alt="">` : ''}
+                            </div>
+                            <div class="match-meta">${homeName} vs ${awayName}</div>
+                            ${stage || location ? `<div class="match-meta">${stage}${stage && location ? ' · ' : ''}${location}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // ─── LIVE / SCHEDULED ───
+            const startTime = new Date(match.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            const homeBadge = match.teams?.home?.badge ? `${STREAM_BASE}/api/images/badge/${match.teams.home.badge}.webp` : (getFlagUrl(homeName) || 'https://img.icons8.com/ios-filled/50/ffffff/football2.png');
+            const awayBadge = match.teams?.away?.badge ? `${STREAM_BASE}/api/images/badge/${match.teams.away.badge}.webp` : (getFlagUrl(awayName) || 'https://img.icons8.com/ios-filled/50/ffffff/football2.png');
+
+            const rowClass = `anim-fade-in-up ${isFeatured ? `featured-row` : `match-row`} ${isLive ? 'is-live' : ''}`;
+
+            let timeHTML = '';
+            if (isLive) {
+                const phase = match.wcLivePhase || 'En vivo';
+                timeHTML = `<span class="live-indicator">⏺</span><span class="live-tag">${phase}</span>`;
+            } else {
+                const isMatchPast = new Date(match.date).getTime() < Date.now();
+                const countdown = isToday && !isMatchPast ? getTimeUntilMatch(match.date) : '';
+                const liveTag = isToday && isMatchPast && !countdown ? '<span class="live-tag">En vivo</span>' : '';
+                timeHTML = `<span class="time">${startTime}</span>${countdown ? `<span class="live-tag">${countdown}</span>` : liveTag}`;
+            }
 
             return `
                 <div class="${rowClass}">
                     <div class="match-time-block">
-                        <span class="time">${startTime}</span>
-                        ${isToday ? '<span class="live-tag">En vivo</span>' : ''}
+                        ${timeHTML}
                     </div>
                     <div class="match-info">
                         <p class="match-title">${match.title || (homeName + ' vs ' + awayName)}${match.popular ? '<span class="top-flag">TOP</span>' : ''}</p>
@@ -296,7 +755,7 @@
                     </div>
                     <div class="stream-selectors" id="streams-${match.id}">
                         <button class="btn-open-streams" onclick="loadStreamsForMatch('${match.id}', ${JSON.stringify(match.sources).replace(/"/g, '&quot;')})">
-                            Ver señales
+                            <span>▶</span> Ver señales
                         </button>
                     </div>
                 </div>
@@ -304,21 +763,110 @@
         }
 
         async function renderTimeline() {
+            const gen = ++renderGeneration;
             const masterContainer = document.getElementById('agenda-master-container');
             try {
-                const response = await fetch(`${STREAM_BASE}/api/matches/football`);
-                if (!response.ok) throw new Error("Fallo de comunicación con la API.");
+                const [streamRes, wcMatches] = await Promise.all([
+                    fetch(`${STREAM_BASE}/api/matches/football`),
+                    fetchWorldCupMatches()
+                ]);
 
-                const matches = await response.json();
+                if (!streamRes.ok) throw new Error("Fallo de comunicación con la API.");
+                const streamMatches = await streamRes.json();
+
                 masterContainer.innerHTML = '';
 
-                if (!matches || matches.length === 0) {
-                    masterContainer.innerHTML = '<div class="no-matches">No hay partidos programados.</div>';
+                // Enrich stream matches with WC data
+                const enriched = (streamMatches || []).map(match => {
+                    const wc = findWcMatch(wcMatches, match.teams?.home?.name, match.teams?.away?.name);
+                    if (wc) {
+                        const matchDate = new Date(match.date).getTime();
+                        const now = Date.now();
+                        const isPast = matchDate <= now + 7200000; // 2h buffer for matches about to start
+                        const isLiveStatus = ['halftime', 'in_play', 'live', '1st_half', '2nd_half'].includes(wc.status);
+                        if (isPast || isLiveStatus) {
+                            match.wcStatus = wc.status;
+                            match.wcHomeScore = wc.homeScore;
+                            match.wcAwayScore = wc.awayScore;
+                            match.wcLivePhase = wc.livePhase;
+                        }
+                        match.wcStage = wc.stageNormalized || wc.stage;
+                        match.wcStadium = wc.stadium;
+                        match.wcCity = wc.city;
+                        match.wcCountry = wc.country;
+                        match.wcExtraTime = wc.extraTime;
+                        match.wcPenalties = wc.penalties;
+                    }
+                    return match;
+                });
+
+                // Add finished matches from Zafronix not in stream API
+                const streamKeys = new Set((streamMatches || []).map(m =>
+                    getTeamKey(m.teams?.home?.name, m.teams?.away?.name)
+                ));
+
+                const wcOnly = (wcMatches || []).filter(wc => {
+                    if (!['finished', 'halftime', 'in_play', 'live', '1st_half', '2nd_half'].includes(wc.status)) return false;
+                    const key = getTeamKey(wc.homeTeam, wc.awayTeam);
+                    const revKey = getTeamKey(wc.awayTeam, wc.homeTeam);
+                    if (streamKeys.has(key) || streamKeys.has(revKey)) return false;
+                    const wcDate = new Date(wc.kickoffUtc || `${wc.date}T${wc.kickoff}:00`).getTime();
+                    if (wc.status === 'finished' && wcDate > Date.now() + 7200000) return false;
+                    return true;
+                }).map(wc => ({
+                    id: 'wc-' + wc.id,
+                    date: wc.kickoffUtc || `${wc.date}T${wc.kickoff}:00`,
+                    title: `${wc.homeTeam} vs ${wc.awayTeam}`,
+                    teams: { home: { name: wc.homeTeam }, away: { name: wc.awayTeam } },
+                    popular: false,
+                    sources: [],
+                    wcStatus: wc.status,
+                    wcHomeScore: wc.homeScore,
+                    wcAwayScore: wc.awayScore,
+                    wcLivePhase: wc.livePhase,
+                    wcStage: wc.stageNormalized || wc.stage,
+                    wcStadium: wc.stadium,
+                    wcCity: wc.city,
+                    wcCountry: wc.country,
+                    wcExtraTime: wc.extraTime,
+                    wcPenalties: wc.penalties,
+                    wcGoals: wc.goals
+                }));
+
+                const allMatches = [...enriched, ...wcOnly];
+                allMatches.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                if (gen !== renderGeneration) return;
+
+                const now = new Date();
+                const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+                const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000 - 1);
+
+                const filterAtRender = currentFilter;
+
+                const filtered = allMatches.filter(m => {
+                    const d = new Date(m.date).getTime();
+                    let passes = false;
+                    if (filterAtRender === 'past') {
+                        passes = d < todayStart.getTime();
+                    } else if (filterAtRender === 'today') {
+                        passes = d >= todayStart.getTime() && d <= todayEnd.getTime();
+                    } else if (filterAtRender === 'upcoming') {
+                        passes = d > todayEnd.getTime();
+                    } else {
+                        passes = true;
+                    }
+                    return passes;
+                });
+
+                if (filtered.length === 0) {
+                    const msgs = { past: 'No hay partidos anteriores.', today: 'No hay partidos para hoy.', upcoming: 'No hay próximos partidos.' };
+                    masterContainer.innerHTML = `<div class="no-matches">${msgs[filterAtRender] || 'No hay partidos.'}</div>`;
                     return;
                 }
 
                 const groups = {};
-                matches.forEach(match => {
+                filtered.forEach(match => {
                     const groupName = getRelativeDayName(match.date);
                     if (!groups[groupName]) groups[groupName] = [];
                     groups[groupName].push(match);
@@ -346,6 +894,10 @@
                     masterContainer.appendChild(daySection);
                     daySection.querySelector('.matches-list').innerHTML = sorted.map(m => buildMatchRowHTML(m, isToday, false)).join('');
                 }
+
+                document.querySelectorAll('.anim-fade-in-up').forEach((el, i) => {
+                    el.style.animationDelay = `${0.05 + i * 0.06}s`;
+                });
             } catch (err) {
                 masterContainer.innerHTML = `<div class="no-matches" style="color: var(--card-red);">Error: ${err.message}</div>`;
             }
@@ -353,7 +905,7 @@
 
         async function loadStreamsForMatch(matchId, sources) {
             const selectorContainer = document.getElementById(`streams-${matchId}`);
-            selectorContainer.innerHTML = `<span class="stream-status">Escaneando señales…</span>`;
+            selectorContainer.innerHTML = `<span class="stream-status loading">Escaneando señales…</span>`;
 
             try {
                 if (!sources || sources.length === 0) {
@@ -396,7 +948,122 @@
             }
         }
 
-        window.addEventListener('DOMContentLoaded', renderTimeline);
+        // ─── Código de invitación ───
+        const SUPABASE_URL = 'https://xtmxwiyfyexxxfguybdk.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_V4f2GG7uz_d3Ki92Z50tQQ_9CRs5Pck';
+        const INVITE_STORAGE_KEY = 'budsin_invite';
+
+        function getStoredInvite() {
+            try {
+                const stored = JSON.parse(localStorage.getItem(INVITE_STORAGE_KEY) || sessionStorage.getItem(INVITE_STORAGE_KEY));
+                if (stored && stored.expires > Date.now()) return true;
+            } catch {}
+            return false;
+        }
+
+        function showInviteOverlay() {
+            document.getElementById('invite-overlay').classList.remove('hidden');
+        }
+
+        function hideInviteOverlay() {
+            document.getElementById('invite-overlay').classList.add('hidden');
+        }
+
+        async function verifyInviteCode(code) {
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/invitation_codes?code=eq.${encodeURIComponent(code)}&active=eq.true&select=id`, {
+                    headers: {
+                        apikey: SUPABASE_KEY,
+                        Authorization: `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+                if (!res.ok) {
+                    console.error('Supabase error:', res.status, res.statusText);
+                    return false;
+                }
+                const data = await res.json();
+                return data.length > 0;
+            } catch (err) {
+                console.error('Error verificando código:', err);
+                return false;
+            }
+        }
+
+        function setupInviteForm() {
+            const input = document.getElementById('invite-input');
+            const btn = document.getElementById('invite-btn');
+            const errorEl = document.getElementById('invite-error');
+            const remember = document.getElementById('invite-remember');
+
+            async function handleSubmit() {
+                const code = input.value.trim().toUpperCase();
+                if (!code) {
+                    errorEl.textContent = 'Ingresa un código';
+                    return;
+                }
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-icon"></span>';
+                errorEl.textContent = '';
+                input.classList.remove('error');
+
+                const valid = await verifyInviteCode(code);
+                if (valid) {
+                    const expires = Date.now() + 7 * 24 * 60 * 60 * 1000;
+                    if (remember.checked) {
+                        localStorage.setItem(INVITE_STORAGE_KEY, JSON.stringify({ token: true, expires }));
+                    } else {
+                        sessionStorage.setItem(INVITE_STORAGE_KEY, JSON.stringify({ token: true, expires }));
+                    }
+                    hideInviteOverlay();
+                    renderTimeline();
+                } else {
+                    errorEl.textContent = 'Código inválido';
+                    input.classList.add('error');
+                    btn.disabled = false;
+                    btn.textContent = 'Ingresar';
+                }
+            }
+
+            btn.addEventListener('click', handleSubmit);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') handleSubmit();
+            });
+
+            input.focus();
+        }
+
+        function setupFilterTabs() {
+            const tabs = document.querySelectorAll('.filter-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    currentFilter = tab.dataset.filter;
+                    renderTimeline();
+                });
+            });
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setupFilterTabs();
+
+            if (getStoredInvite()) {
+                hideInviteOverlay();
+                renderTimeline();
+            } else {
+                showInviteOverlay();
+                setupInviteForm();
+            }
+
+            const backToTop = document.getElementById('back-to-top');
+            window.addEventListener('scroll', () => {
+                backToTop.classList.toggle('visible', window.scrollY > 500);
+            }, { passive: true });
+        });
     </script>
 </body>
 </html>
