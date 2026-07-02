@@ -454,7 +454,7 @@
             <h1>Budsin<span class="accent">FC</span></h1>
             <span class="edition-tag">Edición en vivo</span>
         </div>
-        <div class="subtitle">Cartelera de transmisiones</div>
+        <div class="subtitle">streamed.budsin.dev — cartelera de transmisiones</div>
     </header>
 
     <div class="main-container">
@@ -785,13 +785,24 @@
                     if (wc) {
                         const matchDate = new Date(match.date).getTime();
                         const now = Date.now();
-                        const isPast = matchDate <= now + 7200000; // 2h buffer for matches about to start
+                        
+                        // CORRECCIÓN DEL BUG: Un partido sólo puede darse por terminado desde Zafronix 
+                        // si su estado es 'finished' Y además han pasado al menos 105 minutos desde el pitazo inicial.
                         const isLiveStatus = ['halftime', 'in_play', 'live', '1st_half', '2nd_half'].includes(wc.status);
-                        if (isPast || isLiveStatus) {
-                            match.wcStatus = wc.status;
+                        const isFinishedStatus = wc.status === 'finished' && (now - matchDate >= 105 * 60 * 1000);
+                        const isPreMatchBuffer = matchDate <= now + 7200000 && !isFinishedStatus;
+
+                        if (isPreMatchBuffer || isLiveStatus || isFinishedStatus) {
+                            // Si Zafronix dice 'finished' de forma prematura (al minuto 1), lo forzamos a 'in_play' para no romper el streaming
+                            if (wc.status === 'finished' && (now - matchDate < 105 * 60 * 1000)) {
+                                match.wcStatus = 'in_play';
+                                match.wcLivePhase = 'En progreso';
+                            } else {
+                                match.wcStatus = wc.status;
+                                match.wcLivePhase = wc.livePhase;
+                            }
                             match.wcHomeScore = wc.homeScore;
                             match.wcAwayScore = wc.awayScore;
-                            match.wcLivePhase = wc.livePhase;
                         }
                         match.wcStage = wc.stageNormalized || wc.stage;
                         match.wcStadium = wc.stadium;
@@ -814,6 +825,9 @@
                     const revKey = getTeamKey(wc.awayTeam, wc.homeTeam);
                     if (streamKeys.has(key) || streamKeys.has(revKey)) return false;
                     const wcDate = new Date(wc.kickoffUtc || `${wc.date}T${wc.kickoff}:00`).getTime();
+                    
+                    // Doble validación también para los partidos directos de Zafronix
+                    if (wc.status === 'finished' && (Date.now() - wcDate < 105 * 60 * 1000)) return false;
                     if (wc.status === 'finished' && wcDate > Date.now() + 7200000) return false;
                     return true;
                 }).map(wc => ({
@@ -841,7 +855,7 @@
 
                 if (gen !== renderGeneration) return;
 
-                // LÓGICA LOCAL CORREGIDA PARA LAS PESTAÑAS
+                // LÓGICA LOCAL PARA LAS PESTAÑAS CORREGIDA
                 const now = new Date();
                 const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
                 const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
@@ -926,7 +940,6 @@
                 let visibleStreamsCount = 0;
 
                 streams.forEach(stream => {
-                    // SI ES CHROMEBOOK Y LA SEÑAL ES HD, NO SE RENDERIZA EL BOTÓN
                     if (isChromebook && stream.hd) {
                         return; 
                     }
